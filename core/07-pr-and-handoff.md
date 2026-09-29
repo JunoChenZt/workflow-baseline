@@ -53,7 +53,7 @@ S 档可不开 PR（按 `{{autonomous_scope}}`）；开则简版 = 「档位声�
 
 **落地**：`{{milestone.report_dir}}`。模板：节点完成情况（ID + commit）/ hard-fail 逐项 / 观测数据（fallback 比例、延迟、回放）/ 坑表状态调整 / observe 审视 / 经验值审视 / deferred 项 / 总判定 PASS / FAIL + 理由。
 
-**同时做「基准 review」**：本里程碑的坑表分段是否还相关；骨架与实例层是否有该退役的规则（连续零命中的）；这是评审建议 6「测量流程是否划算」的落点 —— 严格前后对照做不成，可行的是每条规则记「上次拦到东西的日期」，季度退役长期零命中的。
+**同时做「基准 review」（划算度审视）**：跑 `{{metrics.report}}`，读 `{{metrics.ledger}}` 两张台账 —— ① 规则命中：≥ `{{metrics.retire_after_days}}` 天零命中或从未命中的规则进退役候选，按 [08 §2](08-pitfall-registry.md) 协议退役（标 retired，不物理删）；② PR 趋势：S 档被自动升档次数（调 `{{tier.s.max_files}}` / `{{tier.s.max_lines}}` 的依据）、返工与 ⚪ 合计按月看趋势。**不做前后对照**，任务不可复现、输出高方差，流程指标会被噪声淹没。③ 同时过一遍 `{{checks.registry}}`：误报超预算的检查停用或改判据；「上次响」长期为空的检查也是退役候选。
 
 ## 3. 节奏
 

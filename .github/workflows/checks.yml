@@ -1,0 +1,57 @@
+# 自动检查（登记表：checks.md）。全部秒级，无第三方依赖。
+# 承重：self-test 与 lint_links 断链 = hard-fail；其余 WARN 试用（continue-on-error），升 hard-fail 需用户裁。
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # 一道检查的 self-test 挂了 = 那道检查不可信，整个 job 红
+      - name: self-tests（证明每道检查会响）
+        run: |
+          python scripts/lint_links.py --self-test
+          python scripts/lint_config_slots.py --self-test
+          python scripts/lint_pr_body.py --self-test
+          python scripts/tier_check.py --self-test
+          python scripts/metrics_report.py --self-test
+      - name: lint_links（断链 hard-fail，锚点 WARN）
+        run: python scripts/lint_links.py
+      - name: lint_config_slots（WARN 试用）
+        continue-on-error: true
+        run: python scripts/lint_config_slots.py
+
+  pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 取 PR 描述
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" > /tmp/pr_body.md
+      - name: lint_pr_body（交付单格式，WARN 试用）
+        continue-on-error: true
+        run: python scripts/lint_pr_body.py --file /tmp/pr_body.md
+      - name: tier_check（档位对账，WARN 试用）
+        continue-on-error: true
+        run: python scripts/tier_check.py --base "origin/${{ github.base_ref }}" --pr-body-file /tmp/pr_body.md

@@ -2,6 +2,15 @@
 
 让 AI 自主推进任务时「不越线、不盲跑、交付可核」的过程规则：10 步主链路 + 分档路由 + 刹车 8 问 + DoD 三态 + 三栏交付单 + 复盘。从 `subagent-for-investment` 仓库独立出来，2026-09-29 起独立演进。
 
+## 自动检查与台账
+
+| 文件 | 干什么 |
+|---|---|
+| [checks.md](checks.md) | 每道自动检查的登记：抓什么 / 「它会响」证明 / 误报预算 / 承重（WARN 试用为主） |
+| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `tier_check` 档位对账（路由器第一版）· `metrics_report` 划算度报告；各带 `--self-test` |
+| [metrics.md](metrics.md) | 规则命中台账（上次拦到东西的日期）+ PR 台账（档位 / 返工 / ⚪）；零命中 90 天进退役候选 |
+| [.github/workflows/checks.yml](.github/workflows/checks.yml) | push / PR 跑自测 + 检查，秒级 |
+
 ## 三层结构
 
 | 层 | 位置 | 放什么 | 谁用 |
@@ -56,8 +65,8 @@
 - **自 2026-09-29 起本仓库独立演进，不再与源仓库同步**。第一次修改 = 外部评审六条建议中的第 3、5 条（见 [workflow.md §7.5](docs/governance/workflow.md#75-文档迭代历史非完整)）；其余 51 个引用文件仍是快照原样
 - 同日第二笔 = 建议 2 按任务大小分档（[01 §2.2.5](docs/governance/workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）
 - 同日第三笔 = 建议 1 分离通用规则与项目规则（[core/](core/README.md) + [project-config.md](project-config.md)；实例层原文不动）
-- 待商量：分档标准细化 + 路由机制（[project-config §2](project-config.md) `tier.router`）
-- 评审建议 4 / 6（自动检查与流程测量的季度动作）尚未做，落点已写进 [core/07 §2](core/07-pr-and-handoff.md) 与 [core/README §5](core/README.md)
+- 同日第四笔 = 建议 4 自动检查（[checks.md](checks.md) 登记表 + [scripts/](scripts/) 四道检查 + [CI](.github/workflows/checks.yml)）与建议 6 划算度台账（[metrics.md](metrics.md) + `scripts/metrics_report.py`）
+- 待商量：分档标准细化 + 完整路由器（[project-config §2](project-config.md) `tier.router`；`scripts/tier_check.py` 是第一版）
 
 ## 已知限制
 

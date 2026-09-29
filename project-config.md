@@ -32,8 +32,8 @@
 | `sensitive_paths` | schema / prompt / fallback / 路由 / 闸门与质检判据（gate、acceptance、quality）；配置目录、`.env*`、`.claude/settings*`、权限配置；`.github/`、migrations、`pyproject.toml` / `requirements*.txt` / lock；生产部署脚本与 runbook | diff 里出现即至少 M 档；与 `risk.high_triggers` 之一同时命中即 L |
 | `risk.high_triggers` | ① 触及 schema / prompt / fallback / 路由（已完成节点的契约）② 触及硬拦截决策路径 / 合规边界 ③ 跨 ≥ 2 个阶段或子阶段 ④ 新外部依赖 / 新数据源 / 新 API（须同步跑 [source-readiness-checklist](docs/infrastructure/source-readiness-checklist.md)）⑤ 改归档回放兼容性 | 风险判定五条；任一命中 = 高风险 = L 档 |
 | `big_task_triggers` | ① ≥ 2 个模块 / 目录 / 阶段 ② 触及核心链路（schema / prompt / runtime / fallback / 归档回放 / CI）③ 新增能力而非单点修复 ④ 多 agent / 多子任务 / 多验收标准 ⑤ 需要跑完整 DoD / corner case / 冒烟 / observation ⑥ 10 分钟内无法完成并验证 ⑦ 路线图标为大节点 | 大任务判定七条；任一命中 = 大任务 |
-| `tier.metrics` | 记「S 档被自动升档次数」「S 档交付后返工次数」 | 调 `tier.s.*` 阈值的依据；目前**无人记**，接评审建议 6 时接上 |
-| `tier.router` | 人工按判据判（尚未程序化） | ⏳ **待商量**：用户 2026-09-29 提出「分档标准后面要再细化、可引入路由机制」。骨架已把「判档」与「按档路由」分成两节，程序化路由器落地时只换这一格的实现 |
+| `tier.metrics` | [metrics.md](metrics.md) 表 2「PR 台账」的档位列（`S → M` 计升档）与返工列 | 调 `tier.s.*` 阈值的依据；`scripts/metrics_report.py` 汇总 |
+| `tier.router` | 第一版 = `scripts/tier_check.py`（按 diff 算 S 判据 1–3 与最低档位；判据 4–5 与「是否 L」提示人核；CI PR 事件 WARN 试用） | ⏳ **仍待商量**：用户 2026-09-29 提出「分档标准后面要再细化、可引入路由机制」。脚本只是种子：阈值与敏感路径读 §10 机器可读块，细化标准时改块不改脚本；要做成真正的路由器（输出「走哪些步骤」）时扩这一格 |
 
 ## 3. 任务来源与账本（core/01 / 02 / 06 / 07 读这里）
 
@@ -100,10 +100,55 @@
 | `subagents` | `pitfall-scout`（起步扫坑表）/ `verification-report`（里程碑交接） | 两个 subagent 化 skill；其余 7 个 SKILL.md 已 deprecated，规则本体在文档 |
 | `comms.style` | 中文；结论先行；非技术语言；代码符号不当句子主语 | 交付单与对话收尾的表达要求，来源用户级指令 |
 
-## 9. 尚未填的槽位
+## 9. 自动检查与台账（core/README §5、core/07 §2 读这里）
 
-以下槽位骨架里引用了、本项目还没有值，接入时按需补：
+| key | 本项目值 | 说明 |
+|---|---|---|
+| `checks.registry` | [checks.md](checks.md) | 每道自动检查的登记：抓什么 / 「它会响」证明 / 误报预算 / 承重 / 上次响。**先登记再写脚本再接 CI** |
+| `checks.ci` | [.github/workflows/checks.yml](.github/workflows/checks.yml) | self-test + lint_links 断链 = hard-fail；其余 `continue-on-error` |
+| `checks.link_scope` | 见 §10 机器可读块：维护层（骨架 / 配置 / 台账 / 实例层工作流文档） | 链接检查只扫这些；51 个快照引用文件的二级链接指向未打包文件，不在范围（已知 1000+ 条，不算断链） |
+| `metrics.ledger` | [metrics.md](metrics.md) | 表 1 规则命中台账、表 2 PR 台账 |
+| `metrics.retire_after_days` | 90 | 零命中超过这个天数进退役候选（只报，退役走 core/08 §2 协议） |
+| `metrics.report` | `python scripts/metrics_report.py` | 里程碑交接时跑；输出退役候选 + 月度趋势 |
 
-- `tier.router` 的程序化实现（见 §2 待商量）
+## 10. 机器可读块（脚本读这里，与上面表格同义；改阈值改这里）
+
+`scripts/_config.py` 解析下面这个围栏。`sensitive_paths` 是正则，对 diff 里的路径 `search`；`core_leak_terms` 是骨架里不许出现的项目名词；`same_dir_pairs` 里的目录对视为同一顶层目录。
+
+```json project-config
+{
+  "tier": {
+    "s_max_files": 3,
+    "s_max_lines": 100,
+    "same_dir_pairs": [["src/", "tests/"]]
+  },
+  "sensitive_paths": [
+    "(^|/)schemas?/", "(^|/)prompts?/", "fallback", "(^|/)rout(er|ing)",
+    "gate", "acceptance", "quality",
+    "(^|/)config/", "\\.env", "\\.claude/settings", "^\\.github/",
+    "migrations/", "pyproject\\.toml$", "requirements[^/]*\\.txt$", "\\.lock$",
+    "deploy", "runbook"
+  ],
+  "core_leak_terms": [
+    "S2.1", "S2.2", "S2.3", "S2todo", "A6.1", "P4.B", "CRED-", "RDR-1", "PR-8",
+    "committee", "fund_mgr", "tushare", "yfinance", "智堡",
+    "DEBATE_KEY_CLAIMS", "EXECUTION_PLAN_CONTRACT",
+    "docs/roadmap", "docs/observations", "docs/retro", "docs/plans", "backlog.md", "CLAUDE.md"
+  ],
+  "metrics": {
+    "ledger": "metrics.md",
+    "retire_after_days": 90
+  },
+  "checks": {
+    "link_scope": [
+      "README.md", "project-config.md", "checks.md", "metrics.md",
+      "core/", "docs/governance/workflow.md", "docs/governance/workflow/"
+    ]
+  }
+}
+```
+
+## 11. 尚未填的槽位
+
 - `milestones` 的 S3 定义
-- `tier.metrics` 的记录位置
+- `tier.router` 的完整路由器（输出「走哪些步骤」，见 §2）
