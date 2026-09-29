@@ -7,7 +7,7 @@
 | 文件 | 内容 | 关联 skill |
 |---|---|---|
 | [00-quickstart.md](00-quickstart.md) | **入口**：二十行接入片段 + 压缩版 Reading Order + [完整案例](examples/walkthrough-cli-json-flag.md)（第一次接入只读这份） | (主流程入口) |
-| [01-task-entry.md](01-task-entry.md) | 大任务进入 + 风险判定 (§2.1 + §2.2) | risk-judgment |
+| [01-task-entry.md](01-task-entry.md) | 大任务进入 + 风险判定 + **分档 S / M / L** (§2.1 + §2.2 + §2.2.5) | risk-judgment |
 | [02-pre-flight.md](02-pre-flight.md) | 节点切入 5 问 (§2.3) | pitfall-scout / goal-decomposition |
 | [03-decomposition.md](03-decomposition.md) | 拆小任务 + `<goal>` XML (§2.4) | goal-decomposition |
 | [04-goal-execution.md](04-goal-execution.md) | 单 goal 执行 + 自验 (§2.5 + §2.6) | (主流程) |

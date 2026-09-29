@@ -42,7 +42,7 @@
 | 当前所处阶段 | 必读子文档 |
 |---|---|
 | **第一次接入 / 想先看个完整例子** | [00-quickstart.md](workflow/00-quickstart.md)（二十行接入片段 + [完整案例](workflow/examples/walkthrough-cli-json-flag.md)）|
-| 任务进入 / 接到新指令 | [01-task-entry.md](workflow/01-task-entry.md)（§2.1 大任务进入 + §2.2 风险判定）|
+| 任务进入 / 接到新指令 | [01-task-entry.md](workflow/01-task-entry.md)（§2.1 大任务进入 + §2.2 风险判定 + **§2.2.5 定档 S / M / L**）|
 | 节点起步（pre-flight） | [02-pre-flight.md](workflow/02-pre-flight.md)（§2.3 节点切入 5 问）|
 | 拆小任务 / 写 `<goal>` XML | [03-decomposition.md](workflow/03-decomposition.md)（§2.4 拆解 + XML 模板）|
 | Goal 执行中 + 自验 | [04-goal-execution.md](workflow/04-goal-execution.md)（§2.5 + §2.6）|
@@ -206,6 +206,7 @@
 |---|---|---|
 | 1. 大任务进入 | 识别任务类型 + 是否大任务（7 条判定） | [01-task-entry.md](workflow/01-task-entry.md) |
 | 2. 风险判定 | 5 条触发即高风险（高 → 用户确认拆解 / 低 → 自走） | [01-task-entry.md](workflow/01-task-entry.md) |
+| 2.5 **分档** | S 小修 / M 普通 / L 完整；判据客观可核（文件数 / 行数 / 敏感路径 / 不新增 / 有现成验证）；每档「要做 / 不用做」矩阵；**只升不降**、DoD 前按 diff 对账自动升档 | [01-task-entry.md §2.2.5](workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立) |
 | 2.3 Pre-flight | 节点切入 5 问（依赖 / 并行 / 风险档位 / 预算 / Fallback） | [02-pre-flight.md](workflow/02-pre-flight.md) |
 | 3. 拆小任务 | 大任务拆成 `<goal>` XML + decomposition.md | [03-decomposition.md](workflow/03-decomposition.md) |
 | 4. 单 goal 执行 | 按 `<steps>` 推进；触红线 / `<stop_conditions>` 即停 | [04-goal-execution.md](workflow/04-goal-execution.md) |
@@ -302,4 +303,5 @@
 - 2026-05-14：分层重构 — 主文件保留导航 + 总览 + 维护协议，详细规则切片到 `docs/governance/workflow/` 11 个子文档
 - 2026-05-19：§1.3 `hook?` 列对齐路径 D — 改为 `goal-done-reminder 驱动?`，语义从 per-skill hook 改为单一 goal-done-reminder 机制（路径 D）；dod-checklist 否→是（CLAUDE.md [GOAL]-complete 序列含 DoD）、retrospective-node 是→否（节点收口语义层非 hook 驱动）。来源：backlog L 翻案 + CLAUDE.md 术语对齐（PR #117）
 - 2026-09-29：本仓库从 `subagent-for-investment` 独立出来后的第一次基准修改（外部评审六条建议中的第 3、5 条）—— **建议 5**：DoD 每步改三态（[06 §2.8.0](workflow/06-dod-and-evidence.md#280-每一步的结果只有三态2026-09-29-立)）+ 固定三栏交付单（[06 §2.9.5](workflow/06-dod-and-evidence.md#295-交付单固定三栏2026-09-29-立)），把原先散在 05 §2.7.5 / 08 §6.2 / 09 §3 元规则三处的「未验证」规则收成一个格式；自验报告、Q5 上升出口、PR 模板同步。**建议 3**：新增 [00-quickstart.md](workflow/00-quickstart.md)（接入片段 + 压缩版 Reading Order）与 [完整案例](workflow/examples/walkthrough-cli-json-flag.md)。建议 1（拆通用骨架）、2（按大小分档）、4 / 6（自动检查与流程测量的季度动作）**未做**，待后续。
+- 2026-09-29（同日第二笔）：**建议 2 按任务大小分档** —— [01 §2.2.5](workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立) 新立 S / M / L 三档：S 判据五条全部可用 `git diff --stat` 与路径核（≤ 3 文件 / ≤ 100 行 / 不碰敏感路径表 / 不新增能力依赖 / 有现成验证；两个数字为初值 WARN 试用）；每档「要做 / 不用做」矩阵；**只许升不许自己降**，DoD 前按实际 diff 对账、超出自动升档；「本档不要求」与 ⚪ 未验证两种记法分开。接线：03 `<goal tier>`、04 档位声明 + 自验报告、06 DoD 前对账 + 交付单档位行、05 八问不分档、08 PR 档位行 + S 档简版、00 接入片段与案例。**属 §7.2 重大调整（改主链路走法），用户 2026-09-29 拍板。** 建议 1 / 4 / 6 仍未做。
 - 历次重大调整通过 `docs(baseline):` commit 记录，可通过 `git log docs/governance/workflow.md docs/governance/workflow/` 追溯

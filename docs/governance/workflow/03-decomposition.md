@@ -86,7 +86,7 @@
 每个小任务用以下 XML 结构表达，作为 `/goal` 调用的输入：
 
 ```xml
-<goal id="<node-id>.<sub-id>" parent_node="<node-id>" risk_level="high|low">
+<goal id="<node-id>.<sub-id>" parent_node="<node-id>" risk_level="high|low" tier="M|L">
   <objective>
     本小任务要达成的单一明确结果，一句话。
   </objective>
@@ -143,6 +143,7 @@
 - `id`：goal 全局唯一 ID，格式 `<节点 ID>.<sub-id>`，如 `A6.1.2.1`
 - `parent_node`：所属 S2todo 节点
 - `risk_level`：复用 [docs/governance/workflow/01-task-entry.md §2.2](01-task-entry.md#22-风险判定5-条触发即高风险) 风险判定结果，驱动后续是否需要用户确认
+- `tier`：[01 §2.2.5](01-task-entry.md#225-任务分档s--m--l--2026-09-29-立) 档位。写 XML 的 goal 只会是 M 或 L（S 档不写 XML，整个任务是一个隐式 goal）；只许升不许自己降
 - `<scope>`：`allow` 是白名单，`forbid` 是显式黑名单（防"顺手改"）
 - `<dependencies>`：上游 goal / 节点；`status="done"` 必须在 [docs/governance/workflow/02-pre-flight.md §2.3](02-pre-flight.md#23-节点切入-5-问pre-flight-check) 第 1 问已确认
 - `<steps>`：执行序列，每个 step 应对应 1-N 个 commit

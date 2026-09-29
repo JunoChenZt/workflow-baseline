@@ -25,7 +25,8 @@
 
 进入 `<steps>` 之前，Claude 自检：
 
-1. **scope 自检**：本 goal 即将改的文件**全部**在 `<scope><allow>` 列出？有任何超出 → 停下问
+0. **档位声明**（[01 §2.2.5.4](01-task-entry.md#2254-只升不降--自动升档)）：一行 `档位: S/M/L ｜ 判据: …`。S 档没有 XML，这一行就是它的全部头部；做到一半发现要碰敏感路径 = 升档信号，停下按 M / L 走
+1. **scope 自检**：本 goal 即将改的文件**全部**在 `<scope><allow>` 列出？有任何超出 → 停下问（S 档无 allow 列表时，以档位声明里的文件数 / 目录为界）
 2. **dependencies 自检**：所有 `<upstream status="done">` 在 [docs/roadmap/S2.md](../../roadmap/S2.md) 真的标 ✅ ？没真 done → 停下问
 3. **stop_conditions 注入**：把 `<stop_conditions>` 加入本轮上下文，每个工具调用前快速核对
 
@@ -92,6 +93,7 @@
    ```markdown
    ## Self-verification Report
    - Goal: <goal-id>
+   - Tier: <S/M/L（入口）→ <同或升档>（自验时按实际 diff 核）｜判据一行>
    - Commands run: N
    - Pass: M / Fail: N-M
    - Smoke: pass / fail / unverified(<原因 a/b/c/d>)

@@ -28,6 +28,10 @@
 
 低风险 → 自走，不需要用户确认拆解方案。
 
+**定档**（[01 §2.2.5](../01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）：大任务 + 低风险 = **M 档**。写一行：`档位: M ｜ 判据: 大任务（2 模块 + 新增能力）/ §2.2 五条不命中`。M 档矩阵 = 要 5 问、要拆解、要全 DoD、要 5 类 evidence、节点 retro 简版；不需要用户确认、不需要 pitfall-scout。
+
+> 对照：如果指令是「修 report 输出里一个错别字」—— 1 个文件、几行、不碰敏感路径、不新增能力、`pytest tests/test_cli_report.py` 现成 —— 五条全满足 = **S 档**，第 3、4 步整个跳过，第 8 步冒烟写「本档不要求」，交付只有交付单三栏。
+
 ## 第 3 步 · Pre-flight 5 问（[02 §2.3](../02-pre-flight.md#23-节点切入-5-问pre-flight-check)）
 
 ```
@@ -92,6 +96,7 @@
 ```markdown
 ## Self-verification Report
 - Goal: TMP-json.1
+- Tier: M（入口）→ M（自验：3 文件 / 86 行 / 无敏感路径，未超）
 - Commands run: 2
 - Pass: 2 / Fail: 0
 - Smoke: unverified(a)
@@ -124,7 +129,7 @@ Q5 那一行的自问是关键：**「不确定」本身就要求写清楚判据
 | 冒烟 | ⚪ | 原因 (a) 无 API key；fixture 版两条 command 已过，但**不算**端到端 |
 | 彻底跑通 | ✅ | 无 known issue skip；`find` 临时脚本检查为空 |
 
-**计数：✅ 3 / ❌ 0 / ⚪ 1** → 无 ❌，进 evidence。
+**计数：✅ 3 / ❌ 0 / ⚪ 1** → 无 ❌，进 evidence。进 DoD 前的档位对账：`git diff --stat main` = 3 文件 / +71 −15，路径不在敏感表 → 仍是 M，不升档。
 
 ## 第 9 步 · Evidence + 交付单（[06 §2.9](../06-dod-and-evidence.md#29-evidence-收集)）
 
@@ -140,6 +145,7 @@ Q5 那一行的自问是关键：**「不确定」本身就要求写清楚判据
 - 交付单: 见下
 
 ## 交付单 (goal TMP-json.1)
+档位: M（入口）→ M（DoD 对账：3 文件 / 86 行 / 无敏感路径）｜判据: 大任务（2 模块 + 新增能力）/ §2.2 五条不命中
 
 ### 改了什么
 - src/app/render.py：抽出 build_report_model()，文本渲染改为消费它

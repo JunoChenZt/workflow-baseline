@@ -13,7 +13,7 @@ Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自�
 
 | # | 子文档 | 阶段 |
 |---|---|---|
-| 01 | [task-entry](docs/governance/workflow/01-task-entry.md) | 任务进入 + 风险判定 |
+| 01 | [task-entry](docs/governance/workflow/01-task-entry.md) | 任务进入 + 风险判定 + 分档 S / M / L（只升不降） |
 | 02 | [pre-flight](docs/governance/workflow/02-pre-flight.md) | 节点切入 5 问 |
 | 03 | [decomposition](docs/governance/workflow/03-decomposition.md) | 拆小任务 + `<goal>` XML |
 | 04 | [goal-execution](docs/governance/workflow/04-goal-execution.md) | Goal 执行 + 自验 |
@@ -40,7 +40,8 @@ Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自�
 
 - 源仓库：`JunoChenZt/subagent-for-investment`（private），初始快照 main `ad07047a`，2026-09-29
 - **自 2026-09-29 起本仓库独立演进，不再与源仓库同步**。第一次修改 = 外部评审六条建议中的第 3、5 条（见 [workflow.md §7.5](docs/governance/workflow.md#75-文档迭代历史非完整)）；其余 51 个引用文件仍是快照原样
-- 评审建议 1（拆通用骨架 / 项目配置）、2（按任务大小分档）、4 / 6（自动检查与流程测量的季度动作）尚未做
+- 同日第二笔 = 建议 2 按任务大小分档（[01 §2.2.5](docs/governance/workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）
+- 评审建议 1（拆通用骨架 / 项目配置）、4 / 6（自动检查与流程测量的季度动作）尚未做
 
 ## 已知限制
 
