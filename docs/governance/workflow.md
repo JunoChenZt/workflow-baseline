@@ -41,6 +41,7 @@
 
 | 当前所处阶段 | 必读子文档 |
 |---|---|
+| **第一次接入 / 想先看个完整例子** | [00-quickstart.md](workflow/00-quickstart.md)（二十行接入片段 + [完整案例](workflow/examples/walkthrough-cli-json-flag.md)）|
 | 任务进入 / 接到新指令 | [01-task-entry.md](workflow/01-task-entry.md)（§2.1 大任务进入 + §2.2 风险判定）|
 | 节点起步（pre-flight） | [02-pre-flight.md](workflow/02-pre-flight.md)（§2.3 节点切入 5 问）|
 | 拆小任务 / 写 `<goal>` XML | [03-decomposition.md](workflow/03-decomposition.md)（§2.4 拆解 + XML 模板）|
@@ -210,8 +211,8 @@
 | 4. 单 goal 执行 | 按 `<steps>` 推进；触红线 / `<stop_conditions>` 即停 | [04-goal-execution.md](workflow/04-goal-execution.md) |
 | 5. goal 达成自验 | 跑 `<verification>` + smoke + 自验报告 | [04-goal-execution.md](workflow/04-goal-execution.md) |
 | 6. 刹车自检 8 问 | 任一是 / 不确定 → 停下等用户裁决 | [05-brake-self-check.md](workflow/05-brake-self-check.md) |
-| 7. DoD 四步 | Code Review / Corner Case / 冒烟 / 彻底跑通 | [06-dod-and-evidence.md](workflow/06-dod-and-evidence.md) |
-| 8. evidence 收集 | 5 类 evidence 收齐 → summary 进 PR 描述；**本 goal 若有裁决落地，另按 §2.9.4 的 8 格固定名单点名回填真值源**（每格「改了」或「N/A + 理由」，不许留空）| [06-dod-and-evidence.md](workflow/06-dod-and-evidence.md) |
+| 7. DoD 四步 | Code Review / Corner Case / 冒烟 / 彻底跑通；**每步三态 ✅ / ❌ / ⚪**（§2.8.0：没跑标 ⚪ 写原因，不算过也不算阻断，由用户决定收不收） | [06-dod-and-evidence.md](workflow/06-dod-and-evidence.md) |
+| 8. evidence 收集 | 5 类 evidence 收齐 → summary 进 PR 描述；**交付一律用三栏交付单**（§2.9.5：改了什么 / 验证了什么怎么验 / 未验证什么为什么，第三栏没有写「无」）；**本 goal 若有裁决落地，另按 §2.9.4 的 8 格固定名单点名回填真值源**（每格「改了」或「N/A + 理由」，不许留空）| [06-dod-and-evidence.md](workflow/06-dod-and-evidence.md) |
 | 9. goal 级 retro | 6 条触发任一 → must_update / should_update / observe | [07-retro-goal.md](workflow/07-retro-goal.md) |
 | 10. 节点级复盘 + PR | 5 问 retro + 写 retro 文件 + 开 PR + 推下一节点 | [08-retro-node-and-pr.md](workflow/08-retro-node-and-pr.md) |
 
@@ -300,4 +301,5 @@
 - 2026-05-13：初版（10 步主链路 + 风险判定 + 刹车 8 问 + DoD + retro 三档）
 - 2026-05-14：分层重构 — 主文件保留导航 + 总览 + 维护协议，详细规则切片到 `docs/governance/workflow/` 11 个子文档
 - 2026-05-19：§1.3 `hook?` 列对齐路径 D — 改为 `goal-done-reminder 驱动?`，语义从 per-skill hook 改为单一 goal-done-reminder 机制（路径 D）；dod-checklist 否→是（CLAUDE.md [GOAL]-complete 序列含 DoD）、retrospective-node 是→否（节点收口语义层非 hook 驱动）。来源：backlog L 翻案 + CLAUDE.md 术语对齐（PR #117）
+- 2026-09-29：本仓库从 `subagent-for-investment` 独立出来后的第一次基准修改（外部评审六条建议中的第 3、5 条）—— **建议 5**：DoD 每步改三态（[06 §2.8.0](workflow/06-dod-and-evidence.md#280-每一步的结果只有三态2026-09-29-立)）+ 固定三栏交付单（[06 §2.9.5](workflow/06-dod-and-evidence.md#295-交付单固定三栏2026-09-29-立)），把原先散在 05 §2.7.5 / 08 §6.2 / 09 §3 元规则三处的「未验证」规则收成一个格式；自验报告、Q5 上升出口、PR 模板同步。**建议 3**：新增 [00-quickstart.md](workflow/00-quickstart.md)（接入片段 + 压缩版 Reading Order）与 [完整案例](workflow/examples/walkthrough-cli-json-flag.md)。建议 1（拆通用骨架）、2（按大小分档）、4 / 6（自动检查与流程测量的季度动作）**未做**，待后续。
 - 历次重大调整通过 `docs(baseline):` commit 记录，可通过 `git log docs/governance/workflow.md docs/governance/workflow/` 追溯

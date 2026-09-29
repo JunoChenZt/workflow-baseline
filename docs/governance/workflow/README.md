@@ -1,17 +1,18 @@
 # Workflow 子文档导航
 
-本目录是 [docs/governance/workflow.md](../workflow.md) 的分层切片。主文档保留 §0 适用前置 + §0.1 Reading Order + §1 主链路总览 + §7 维护协议；详细规则按主题分在 11 个子文档里。
+本目录是 [docs/governance/workflow.md](../workflow.md) 的分层切片。主文档保留 §0 适用前置 + §0.1 Reading Order + §1 主链路总览 + §7 维护协议；详细规则按主题分在 11 个子文档里，另有一份入口 [00-quickstart.md](00-quickstart.md) 和 `examples/` 下的完整案例。
 
 ## 子文档清单
 
 | 文件 | 内容 | 关联 skill |
 |---|---|---|
+| [00-quickstart.md](00-quickstart.md) | **入口**：二十行接入片段 + 压缩版 Reading Order + [完整案例](examples/walkthrough-cli-json-flag.md)（第一次接入只读这份） | (主流程入口) |
 | [01-task-entry.md](01-task-entry.md) | 大任务进入 + 风险判定 (§2.1 + §2.2) | risk-judgment |
 | [02-pre-flight.md](02-pre-flight.md) | 节点切入 5 问 (§2.3) | pitfall-scout / goal-decomposition |
 | [03-decomposition.md](03-decomposition.md) | 拆小任务 + `<goal>` XML (§2.4) | goal-decomposition |
 | [04-goal-execution.md](04-goal-execution.md) | 单 goal 执行 + 自验 (§2.5 + §2.6) | (主流程) |
 | [05-brake-self-check.md](05-brake-self-check.md) | 刹车自检 8 问 (§2.7) | brake-self-check |
-| [06-dod-and-evidence.md](06-dod-and-evidence.md) | DoD 四步 + evidence (§2.8 + §2.9) | dod-checklist |
+| [06-dod-and-evidence.md](06-dod-and-evidence.md) | DoD 四步 + **三态**(§2.8.0) + evidence + **交付单**(§2.9.5) | dod-checklist |
 | [07-retro-goal.md](07-retro-goal.md) | Goal 级 retro (§2.10) | retrospective-goal |
 | [08-retro-node-and-pr.md](08-retro-node-and-pr.md) | 节点级复盘 + PR 模板 (§2.11 + §6) | retrospective-node / pr-template |
 | [09-known-pitfalls.md](09-known-pitfalls.md) | 已知坑 + 维护协议 (§3) — **不再细拆**（subagent 要读全表） | pitfall-scout / verification-report |

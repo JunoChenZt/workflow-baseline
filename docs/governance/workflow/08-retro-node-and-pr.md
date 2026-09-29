@@ -311,11 +311,20 @@ retro 文件"，本节管"每一条必须有且只有一个去处，且数目对
 - 依赖: 上游 ✅ 节点列表
 - 拆解: [本节点拆为 N 个 /goal 小任务，列出 ID 或链接 docs/plans/<node-id>-decomposition.md]
 
-## DoD 通过证据
-- [ ] Code Review: [review notes / 自查结论]
-- [ ] Corner Case: [跑过的 case 列表 + 结果]
-- [ ] 冒烟: [query + 延迟 + fallback ratio]
-- [ ] 彻底跑通: 无 known issue skip / 无回归
+## DoD 三态（§2.8.0 · 每步 ✅ / ❌ / ⚪，❌ 必须为 0 才能开 PR）
+- Code Review: ✅ / ⚪ — [review notes / 自查结论；⚪ 写原因 a/b/c/d]
+- Corner Case: ✅ / ⚪ — [跑过的 case 列表 + 结果]
+- 冒烟: ✅ / ⚪ — [query + 延迟 + fallback ratio]
+- 彻底跑通: ✅ / ⚪ — [无 known issue skip / 无回归]
+- 计数: ✅ a / ❌ 0 / ⚪ c   ← c 必须等于下面交付单第三栏的条数
+
+## 交付单（§2.9.5 · 三栏必齐）
+### 改了什么
+- [文件或模块：一句话]
+### 验证了什么、怎么验的
+- [验证项：命令 / 手段 → 结果；报 0 / 全绿附成立条件]
+### 未验证什么、为什么
+- [项 ⚪：原因 (a)/(b)/(c)/(d) + 说明 → 建议处置]（没有写：无）
 
 ## Evidence 路径（必填，盲跑不算）
 - Review notes: `<docs/observations/<node-id>-review.md 或 PR comment hash>`
@@ -359,7 +368,8 @@ retro 文件"，本节管"每一条必须有且只有一个去处，且数目对
 ### 6.2 PR 描述不可省略的段
 
 - 节点 ID / 子阶段 / 依赖
-- DoD 4 项的 ✅
+- DoD 4 项的三态（✅ / ⚪ 逐项标，❌ 为 0）+ 三态计数
+- **交付单三栏**（第三栏没有写「无」；条数与 ⚪ 计数相等，见 [06 §2.9.5](06-dod-and-evidence.md#295-交付单固定三栏2026-09-29-立)）
 - Evidence 路径
 - **Review finding 去处**（跑过 review 就必填，见 §2.11.9；没跑则显式写"未跑 review"）
 - 风险与 Fallback

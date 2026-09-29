@@ -2,6 +2,10 @@
 
 Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自检 + DoD + retro），从 `subagent-for-investment` 仓库独立打包。
 
+## 怎么接入（第一次用先看这个）
+
+[docs/governance/workflow/00-quickstart.md](docs/governance/workflow/00-quickstart.md) —— 一段可直接复制进 `CLAUDE.md` / `AGENTS.md` 的二十行接入片段、压缩版「什么时候读哪份」表，以及一个[从用户指令走到交付的完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md)。只读这一份就能开始用。
+
 ## 入口
 
 - [docs/governance/workflow.md](docs/governance/workflow.md) — 总纲：适用条件、Reading Order、10 步主链路流程图、维护协议
@@ -14,7 +18,7 @@ Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自�
 | 03 | [decomposition](docs/governance/workflow/03-decomposition.md) | 拆小任务 + `<goal>` XML |
 | 04 | [goal-execution](docs/governance/workflow/04-goal-execution.md) | Goal 执行 + 自验 |
 | 05 | [brake-self-check](docs/governance/workflow/05-brake-self-check.md) | 刹车自检 8 问 |
-| 06 | [dod-and-evidence](docs/governance/workflow/06-dod-and-evidence.md) | DoD 四步 + evidence |
+| 06 | [dod-and-evidence](docs/governance/workflow/06-dod-and-evidence.md) | DoD 四步（每步三态 ✅/❌/⚪）+ evidence + 三栏交付单 |
 | 07 | [retro-goal](docs/governance/workflow/07-retro-goal.md) | Goal 级 retro 三档 |
 | 08 | [retro-node-and-pr](docs/governance/workflow/08-retro-node-and-pr.md) | 节点复盘 + PR 模板 |
 | 09 | [known-pitfalls](docs/governance/workflow/09-known-pitfalls.md) | 已知坑表 |
@@ -32,11 +36,11 @@ Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自�
 - `docs/infrastructure/` / `docs/pipeline/` / `docs/archive/` — 被引用的基础设施与流水线文档
 - `src/` / `scripts/` / `tests/` — 被引用的代码文件（仅供阅读定位，**不构成可运行工程**）
 
-## 来源
+## 来源与演进
 
-- 源仓库：`JunoChenZt/subagent-for-investment`（private）
-- 快照：main `ad07047a`，2026-09-29
-- 所有文件**逐字保留**，未做任何改写
+- 源仓库：`JunoChenZt/subagent-for-investment`（private），初始快照 main `ad07047a`，2026-09-29
+- **自 2026-09-29 起本仓库独立演进，不再与源仓库同步**。第一次修改 = 外部评审六条建议中的第 3、5 条（见 [workflow.md §7.5](docs/governance/workflow.md#75-文档迭代历史非完整)）；其余 51 个引用文件仍是快照原样
+- 评审建议 1（拆通用骨架 / 项目配置）、2（按任务大小分档）、4 / 6（自动检查与流程测量的季度动作）尚未做
 
 ## 已知限制
 

@@ -94,10 +94,13 @@
    - Goal: <goal-id>
    - Commands run: N
    - Pass: M / Fail: N-M
-   - Smoke: pass / fail / skipped
+   - Smoke: pass / fail / unverified(<原因 a/b/c/d>)
+   - Unverified: <没跑的 command 或 smoke 逐条列 + 原因；没有写「无」>
    - Fallback ratio: X% (baseline: Y%)
    - P50: A ms / P95: B ms
    ```
+
+   `skipped` 不再是合法值：没跑就是 `unverified`，且必须带 [06 §2.8.0](06-dod-and-evidence.md#280-每一步的结果只有三态2026-09-29-立) 四种原因之一；写不进四种的就是盲跑（Q5）。
 
 ### 2.6.3 自验失败的处理
 
@@ -109,7 +112,7 @@
 ### 2.6.4 输出
 
 - 自验报告（markdown 块）
-- 通过 / 失败状态
+- 通过 / 失败 / 带未验证项 三态（unverified 项原样带进 DoD 三态表与交付单第三栏，[06 §2.9.5](06-dod-and-evidence.md#295-交付单固定三栏2026-09-29-立)）
 - 任何 `quality_flag`
 
 **进入 [05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) 的前置**：通过 + 自验报告已生成。
