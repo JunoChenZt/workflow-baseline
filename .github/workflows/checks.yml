@@ -26,7 +26,7 @@ jobs:
           python scripts/lint_links.py --self-test
           python scripts/lint_config_slots.py --self-test
           python scripts/lint_pr_body.py --self-test
-          python scripts/tier_check.py --self-test
+          python scripts/router.py --self-test
           python scripts/metrics_report.py --self-test
       - name: lint_links（断链 hard-fail，锚点 WARN）
         run: python scripts/lint_links.py
@@ -52,6 +52,6 @@ jobs:
       - name: lint_pr_body（交付单格式，WARN 试用）
         continue-on-error: true
         run: python scripts/lint_pr_body.py --file /tmp/pr_body.md
-      - name: tier_check（档位对账，WARN 试用）
+      - name: router（档位对账 + 路由卡，WARN 试用）
         continue-on-error: true
-        run: python scripts/tier_check.py --base "origin/${{ github.base_ref }}" --pr-body-file /tmp/pr_body.md
+        run: python scripts/router.py --base "origin/${{ github.base_ref }}" --pr-body-file /tmp/pr_body.md

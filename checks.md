@@ -13,14 +13,14 @@
 | `lint_links` | 仓内 .md 相对链接指向不存在的文件；锚点不存在（core/README §5、链接规范） | `scripts/lint_links.py`，CI 每次 push / PR | `--self-test`：造断链与坏锚点，必须报；好链接不报 | 断链 0 容忍；锚点近似 GitHub 规则，误报 3 次即改算法 | 断链 **hard-fail**（沿用源项目 `lint_doc_links.py` 先例）；锚点 WARN | 2026-09-29 首跑：本地脚本斜杠 bug 误报 19 条（已修，不计） | 2026-09-29 |
 | `lint_config_slots` | core/ 用了 project-config 没定义的 `{{key}}`；core/ 出现项目名词（core/README §5「配置项不进骨架」） | `scripts/lint_config_slots.py`，CI 每次 push / PR | `--self-test`：未定义槽位与泄漏词各造一例，必须报；CHANGELOG 里的出处不报 | 泄漏词表 `core_leak_terms` 由配置维护；误报 = 通用词被当项目词，3 次即从表里删 | **WARN 试用** | 未 | 2026-09-29 |
 | `lint_pr_body` | 交付单五条硬规则（core/05 §5）+ finding 去处 N = a+b+c（core/06 §3）：缺档位行 / 三栏不齐 / 第三栏空白 / 带 ⚪ 写「全部通过」/ ⚪ 计数对不上 / a+b+c ≠ N | `scripts/lint_pr_body.py`，CI 在 PR 事件读 PR body | `--self-test`：六种坏形态各会响，两种好形态不响 | 正则识别中文标题与「无」，误报 3 次即改；只在 PR 事件跑，不拦直接 push | **WARN 试用** | 未 | 2026-09-29 |
-| `tier_check` | 声明档位低于按 diff 算出的最低档（core/01 §5 只升不降）；同时是路由器第一版：算 S 判据 1–3，判据 4–5 与「是否 L」提示人核 | `scripts/tier_check.py --base <PR base> --pr-body-file`，CI PR 事件 | `--self-test`：小改动 S；敏感路径 / 超行 / 跨目录 / 超文件各升 M；声明行含升档解析 | 敏感路径正则由配置维护；阈值初值 3 / 100；误报 = 该 S 的被判 M，进 `metrics.md` 表 2 作调阈值依据 | **WARN 试用** | 未 | 2026-09-29 |
+| `router` | 路由器 v2：由事实（桶 / 路径 / 坑表 / 依赖 / 测试可得）+ H1–H3 推档位、出路由卡；声明档位低于算出即报（core/01 §5 只升不降）；DoD 时反查 H 声明 | `scripts/router.py`：入口 `--planned` / DoD `--base` / CI PR 事件 `--base --pr-body-file` | `--self-test`：12 种事实各推对档位、反查出 2 条警告、声明行与 H 行解析 | 阈值与路径表由配置维护；误报 = 该 S 的被判 M，进 `metrics.md` 表 2 作调阈值依据；H 反查只抓明显形态，漏报不算误报 | **WARN 试用** | 未 | 2026-09-29（v1 `tier_check` 同日退役） |
 | `metrics_report` | 不拦：读 `metrics.md` 报退役候选（≥ 90 天零命中）与 PR 趋势（建议 6） | `scripts/metrics_report.py`，里程碑交接手动跑 | `--self-test`：零命中 / 从未命中进候选、近期命中不进、月度合计对得上 | 只报不拦，无误报概念；台账没人记会满屏「从未命中」，那是信号不是误报 | 报告 | — | 2026-09-29 |
 
 ## 没做成检查的规则（为什么）
 
 - **刹车 8 问**：判断题，机器判不了。程序层只能做「goal 完成时提醒去跑」（源项目用 hook 做了，本仓无 hook 环境）。
 - **「能跑没跑 = 盲跑」**：需要知道哪些命令可跑，机器判不了；`lint_pr_body` 只能核第三栏格式，判不了原因真假。
-- **S 判据 4（不新增能力）/ 5（有现成验证）**：`tier_check` 提示人核，不判。
+- **H1–H3 三个人声明**：`router` 只在 DoD 时用 diff 反查明显形态（新 CLI 选项 / 新网络 import / 删除操作），抓不全；答「否」的真假仍靠自觉。
 - **回填清单 8 格**：格式可以核（每格非空），但本仓没有那些真值源文件，等接回源项目再做。
 
 ## 维护

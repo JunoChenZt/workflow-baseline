@@ -8,7 +8,8 @@ S 档可不开 PR（按 `{{autonomous_scope}}`）；开则简版 = 「档位声�
 
 ```markdown
 ## 节点
-- 档位: [S / M / L（入口）→ 同或升档（DoD 对账）｜判据一行；用户裁降的引用原话]
+- 档位: [S / M / L（入口）→ 同或升档（DoD 重算）｜事实一行；用户裁降的引用原话]
+- H1 新增能力: 是/否  H2 外部副作用: 是/否  H3 不可逆: 是/否（CI 的路由器从这两行读声明）
 - ID / 里程碑 / 依赖（上游已完成列表）/ 拆解（N 个 goal，链接拆解文件）
 
 ## DoD 三态（每步 ✅ / ⚪，❌ 必须为 0 才能开 PR）
@@ -53,7 +54,7 @@ S 档可不开 PR（按 `{{autonomous_scope}}`）；开则简版 = 「档位声�
 
 **落地**：`{{milestone.report_dir}}`。模板：节点完成情况（ID + commit）/ hard-fail 逐项 / 观测数据（fallback 比例、延迟、回放）/ 坑表状态调整 / observe 审视 / 经验值审视 / deferred 项 / 总判定 PASS / FAIL + 理由。
 
-**同时做「基准 review」（划算度审视）**：跑 `{{metrics.report}}`，读 `{{metrics.ledger}}` 两张台账 —— ① 规则命中：≥ `{{metrics.retire_after_days}}` 天零命中或从未命中的规则进退役候选，按 [08 §2](08-pitfall-registry.md) 协议退役（标 retired，不物理删）；② PR 趋势：S 档被自动升档次数（调 `{{tier.s.max_files}}` / `{{tier.s.max_lines}}` 的依据）、返工与 ⚪ 合计按月看趋势。**不做前后对照**，任务不可复现、输出高方差，流程指标会被噪声淹没。③ 同时过一遍 `{{checks.registry}}`：误报超预算的检查停用或改判据；「上次响」长期为空的检查也是退役候选。
+**同时做「基准 review」（划算度审视）**：跑 `{{metrics.report}}`，读 `{{metrics.ledger}}` 两张台账 —— ① 规则命中：≥ `{{metrics.retire_after_days}}` 天零命中或从未命中的规则进退役候选，按 [08 §2](08-pitfall-registry.md) 协议退役（标 retired，不物理删）；② PR 趋势：S 档被自动升档次数（调 `{{tier.s_limits}}` 的依据）、返工与 ⚪ 合计按月看趋势。**不做前后对照**，任务不可复现、输出高方差，流程指标会被噪声淹没。③ 同时过一遍 `{{checks.registry}}`：误报超预算的检查停用或改判据；「上次响」长期为空的检查也是退役候选。
 
 ## 3. 节奏
 

@@ -22,18 +22,23 @@
 | `confirm_before` | 改 `.claude/settings.json` / `CLAUDE.md` / 权限配置；改主依赖版本（patch 升级除外）；在工作分支之外做远程可见操作 | 不是红线，但动之前先问。来源 CLAUDE.md「需要确认」 |
 | `autonomous_scope` | 在 `auto/<node-id>` 工作分支内任意 git 操作；删远程 PR 分支；改 CI 配置；改代码与文档。**例外**：docs-only 维护类小步提交可直接 main | 骨架 S 档「可不开 PR」的边界由这里定 |
 
-## 2. 分档与路由（core/01 读这里）
+## 2. 分档与路由（core/01 读这里 · v2 · 2026-09-29 七点裁定）
 
 | key | 本项目值 | 说明 |
 |---|---|---|
-| `tier.s.max_files` | 3 | S 档判据 1：改动文件数上限。**初值，WARN 试用**，按 `tier.metrics` 季度调 |
-| `tier.s.max_lines` | 100 | S 档判据 2：增删合计行数上限。同上 |
-| `tier.s.same_dir_rule` | `src/<模块>/` 与配对的 `tests/` 算同一处 | S 档判据 1 的「同一顶层目录」怎么算 |
-| `sensitive_paths` | schema / prompt / fallback / 路由 / 闸门与质检判据（gate、acceptance、quality）；配置目录、`.env*`、`.claude/settings*`、权限配置；`.github/`、migrations、`pyproject.toml` / `requirements*.txt` / lock；生产部署脚本与 runbook | diff 里出现即至少 M 档；与 `risk.high_triggers` 之一同时命中即 L |
-| `risk.high_triggers` | ① 触及 schema / prompt / fallback / 路由（已完成节点的契约）② 触及硬拦截决策路径 / 合规边界 ③ 跨 ≥ 2 个阶段或子阶段 ④ 新外部依赖 / 新数据源 / 新 API（须同步跑 [source-readiness-checklist](docs/infrastructure/source-readiness-checklist.md)）⑤ 改归档回放兼容性 | 风险判定五条；任一命中 = 高风险 = L 档 |
-| `big_task_triggers` | ① ≥ 2 个模块 / 目录 / 阶段 ② 触及核心链路（schema / prompt / runtime / fallback / 归档回放 / CI）③ 新增能力而非单点修复 ④ 多 agent / 多子任务 / 多验收标准 ⑤ 需要跑完整 DoD / corner case / 冒烟 / observation ⑥ 10 分钟内无法完成并验证 ⑦ 路线图标为大节点 | 大任务判定七条；任一命中 = 大任务 |
-| `tier.metrics` | [metrics.md](metrics.md) 表 2「PR 台账」的档位列（`S → M` 计升档）与返工列 | 调 `tier.s.*` 阈值的依据；`scripts/metrics_report.py` 汇总 |
-| `tier.router` | 第一版 = `scripts/tier_check.py`（按 diff 算 S 判据 1–3 与最低档位；判据 4–5 与「是否 L」提示人核；CI PR 事件 WARN 试用） | ⏳ **仍待商量**：用户 2026-09-29 提出「分档标准后面要再细化、可引入路由机制」。脚本只是种子：阈值与敏感路径读 §10 机器可读块，细化标准时改块不改脚本；要做成真正的路由器（输出「走哪些步骤」）时扩这一格 |
+| `tier.router` | `scripts/router.py`：入口 `--planned <files> --h1/--h2/--h3`；DoD 前 / CI `--base <ref>`（H 与声明档位从 PR 描述读）；`--json` 给工具用 | 由事实推档位、出路由卡（必做 / 不要求 / 验证命令 / 停止条件）；声明低于算出即报。**WARN 试用** |
+| `tier.buckets` | tests / docs / infra / config / src / other（正则见 §10，顺序即优先级） | F1：每个路径归一个桶 |
+| `tier.s_limits` | src ≤ 3 文件 ≤ 100 行；tests ≤ 5 / ≤ 300；docs ≤ 5 / 不限行；config、infra 任何改动不是 S；other ≤ 3 / ≤ 100 | 按桶分开的 S 上限；**初值 WARN 试用**，按 `tier.metrics` 季度调 |
+| `tier.same_dir_rule` | `src/` 与配对的 `tests/` 算同一顶层目录 | 跨顶层目录即至少 M |
+| `tier.test_map` | `src/<模块>/<名>.py → tests/test_<名>.py`；`scripts/<名>.py → tests/test_<名>.py` | F6：src 文件找不到配对测试即不满足 S |
+| `tier.dependency_files` | `pyproject.toml` / `requirements*.txt` / lock 文件 / `package.json` | F5：有改动即 L |
+| `paths.l` | schema / prompt / migrations / `.github/` / 依赖清单 / `.env*` / `.claude/settings*` / deploy / runbook | F3：命中即 **L** |
+| `paths.m` | fallback / 路由 / 闸门（gate）/ acceptance / quality / 配置目录 | F3：命中即至少 **M** |
+| `tier.human_flags` | H1 新增能力 / H2 外部副作用 / H3 不可逆操作，各一句理由 | 唯一的人声明；答不准按「是」；DoD 时 diff 反查明显形态兜底 |
+| `tier.metrics` | [metrics.md](metrics.md) 表 2「PR 台账」的档位列（`S → M` 计升档）与返工列 | 调 `tier.s_limits` 的依据；`scripts/metrics_report.py` 汇总 |
+| ~~`big_task_triggers`~~ / ~~`risk.high_triggers`~~ / ~~`sensitive_paths`~~ | v1 键，2026-09-29 晚退役 | 七条 / 五条里能机检的并入 F1–F6，其余并入 H1–H3；敏感路径拆成 `paths.l` / `paths.m` |
+
+**待商量 → 已定（2026-09-29）**：用户提出「分档标准要再细化、可引入路由机制」，七个决定点全按建议裁定（见 [core/README §6](core/README.md) CHANGELOG）。**仍开放**：H1–H3 自答的兜底只靠 diff 反查明显形态，抓不全；坑表老条目「路径:」未回填。
 
 ## 3. 任务来源与账本（core/01 / 02 / 06 / 07 读这里）
 
@@ -113,37 +118,39 @@
 
 ## 10. 机器可读块（脚本读这里，与上面表格同义；改阈值改这里）
 
-`scripts/_config.py` 解析下面这个围栏。`sensitive_paths` 是正则，对 diff 里的路径 `search`；`core_leak_terms` 是骨架里不许出现的项目名词；`same_dir_pairs` 里的目录对视为同一顶层目录。
+`scripts/_config.py` 解析下面这个围栏。`buckets` 顺序即优先级，正则对路径 `search`；`s_limits` 每桶 `[文件上限, 行上限]`，`null` = 不限，`[0, 0]` = 任何改动不是 S；`paths.l` / `paths.m` 是正则；`test_map` 是 `[匹配, 替换]`；`pitfalls.path_field` 是坑表条目里路径字段的前缀；`core_leak_terms` 是骨架里不许出现的项目名词。
 
 ```json project-config
 {
   "tier": {
-    "s_max_files": 3,
-    "s_max_lines": 100,
-    "same_dir_pairs": [["src/", "tests/"]]
+    "buckets": [
+      ["tests", "(^|/)tests?/|(^|/)test_[^/]+\\.py$|_test\\.py$"],
+      ["docs", "\\.md$|(^|/)docs/"],
+      ["infra", "^\\.github/|(^|/)migrations/|pyproject\\.toml$|requirements[^/]*\\.txt$|\\.lock$|(^|/)Dockerfile|(^|/)deploy|runbook"],
+      ["config", "(^|/)config/|\\.env|\\.claude/|\\.ya?ml$|\\.toml$|\\.ini$|\\.json$"],
+      ["src", "\\.(py|ts|js|go|rs|java|sh)$"]
+    ],
+    "s_limits": {"src": [3, 100], "tests": [5, 300], "docs": [5, null], "config": [0, 0], "infra": [0, 0], "other": [3, 100]},
+    "same_dir_pairs": [["src/", "tests/"]],
+    "test_map": [["^src/[^/]+/(?:.+/)?([^/]+)\\.py$", "tests/test_\\1.py"], ["^scripts/([^/]+)\\.py$", "tests/test_\\1.py"]],
+    "dependency_files": ["pyproject\\.toml$", "requirements[^/]*\\.txt$", "\\.lock$", "package\\.json$"]
   },
-  "sensitive_paths": [
-    "(^|/)schemas?/", "(^|/)prompts?/", "fallback", "(^|/)rout(er|ing)",
-    "gate", "acceptance", "quality",
-    "(^|/)config/", "\\.env", "\\.claude/settings", "^\\.github/",
-    "migrations/", "pyproject\\.toml$", "requirements[^/]*\\.txt$", "\\.lock$",
-    "deploy", "runbook"
-  ],
+  "paths": {
+    "l": ["(^|/)schemas?/", "(^|/)prompts?/", "(^|/)migrations/", "^\\.github/",
+          "pyproject\\.toml$", "requirements[^/]*\\.txt$", "\\.lock$", "\\.env", "\\.claude/settings", "deploy", "runbook"],
+    "m": ["fallback", "(^|/)rout(er|ing)", "gate", "acceptance", "quality", "(^|/)config/"]
+  },
+  "pitfalls": {"table": "docs/governance/workflow/09-known-pitfalls.md", "path_field": "路径:"},
   "core_leak_terms": [
     "S2.1", "S2.2", "S2.3", "S2todo", "A6.1", "P4.B", "CRED-", "RDR-1", "PR-8",
     "committee", "fund_mgr", "tushare", "yfinance", "智堡",
     "DEBATE_KEY_CLAIMS", "EXECUTION_PLAN_CONTRACT",
     "docs/roadmap", "docs/observations", "docs/retro", "docs/plans", "backlog.md", "CLAUDE.md"
   ],
-  "metrics": {
-    "ledger": "metrics.md",
-    "retire_after_days": 90
-  },
+  "metrics": {"ledger": "metrics.md", "retire_after_days": 90},
   "checks": {
-    "link_scope": [
-      "README.md", "project-config.md", "checks.md", "metrics.md",
-      "core/", "docs/governance/workflow.md", "docs/governance/workflow/"
-    ]
+    "link_scope": ["README.md", "project-config.md", "checks.md", "metrics.md",
+                   "core/", "docs/governance/workflow.md", "docs/governance/workflow/"]
   }
 }
 ```
@@ -151,4 +158,3 @@
 ## 11. 尚未填的槽位
 
 - `milestones` 的 S3 定义
-- `tier.router` 的完整路由器（输出「走哪些步骤」，见 §2）

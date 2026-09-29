@@ -18,9 +18,8 @@
 
 | # | 一句话 | 骨架文档 |
 |---|---|---|
-| 1 | 判定：是不是大任务（`{{big_task_triggers}}` 七条）| [01](01-entry-and-routing.md) |
-| 2 | 风险：`{{risk.high_triggers}}` 五条任一命中即高 | [01](01-entry-and-routing.md) |
-| 2.5 | **定档与路由**：S / M / L，只升不降，DoD 前按 diff 对账 | [01](01-entry-and-routing.md) |
+| 1 | 任务进入：识别类型（热修不走本骨架）| [01](01-entry-and-routing.md) |
+| 2 | **路由卡**：事实 F1–F6（桶 / 路径 / 坑表 / 依赖 / 测试可得）+ 三个是非题 H1–H3 → S / M / L；只升不降；入口 / DoD 前 / CI 三个运行点 | [01](01-entry-and-routing.md) |
 | 3 | 拆解：pre-flight 5 问 → `<goal>` XML | [02](02-decompose.md) |
 | 4 | 执行：执行前自检 → 按 steps 推进 → 硬边界即停 | [03](03-execute-and-verify.md) |
 | 5 | 自验：跑 verification → 自验报告 | [03](03-execute-and-verify.md) |
@@ -59,6 +58,7 @@
 - `{{key}}`：配置槽位，取值见 [project-config.md](../project-config.md)。
 - ✅ / ❌ / ⚪：DoD 三态，通过 / 不过 / 未验证（[05 §1](05-dod-and-delivery.md)）。
 - 「本档不要求」：档位矩阵说不用做；与 ⚪ 是两种记法，不混（[01 §4](01-entry-and-routing.md)）。
+- 路由卡：`{{tier.router}}` 的输出，贴在 goal 头部，同时就是档位声明（[01 §5](01-entry-and-routing.md)）。没有卡 = 没跑路由器。
 - 「停下问」：保留当前状态、写明原因与建议、等人裁决；不是放弃，也不是继续。
 
 ## 5. 骨架维护协议
@@ -73,4 +73,5 @@
 ## 6. CHANGELOG
 
 - 2026-09-29：初版。从 `subagent-for-investment` 的 11 份 workflow 子文档抽出通用骨架（评审建议 1「分离通用规则与项目规则」）；同日已先落地建议 5（DoD 三态 + 交付单）、建议 3（quickstart）、建议 2（分档）。分档标准细化与路由机制待商量（[project-config §2](../project-config.md) `tier.router`）。
+- 2026-09-29（同日，晚）：**分档 v2 + 路由器**，用户七点裁定全按建议：① 取消「大任务七条 / 风险五条」独立判定，档位由事实推出；② 敏感路径拆 L 档 / M 档两表；③ 阈值按桶分开（src 严、tests / docs 宽、config / infra 不给 S）；④ 坑表条目加「路径:」字段，路由器按路径命中；⑤ 路由卡 markdown 为主 + `--json`；⑥ S / M 入口必跑路由器（预计清单）；⑦ M 档单 goal 可用路由卡代替 scope / verification。人声明压成 H1–H3 三个是非题，DoD 时 diff 反查兜底。`scripts/router.py` 取代 `tier_check.py`。
 - 2026-09-29（同日）：建议 4 + 6 落地。四道自动检查 + 一个报告脚本（`scripts/`，各带 `--self-test`）、检查登记表 `{{checks.registry}}`、CI `{{checks.ci}}`（WARN 试用为主）、台账 `{{metrics.ledger}}` + `{{metrics.report}}`。`tier_check` 是路由器第一版（算 S 判据 1–3；判据 4–5 与是否 L 提示人核）。§5 补两条维护原则。

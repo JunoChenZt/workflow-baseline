@@ -7,7 +7,7 @@
 | 文件 | 干什么 |
 |---|---|
 | [checks.md](checks.md) | 每道自动检查的登记：抓什么 / 「它会响」证明 / 误报预算 / 承重（WARN 试用为主） |
-| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `tier_check` 档位对账（路由器第一版）· `metrics_report` 划算度报告；各带 `--self-test` |
+| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `router` 路由器（事实推档位 + 路由卡 + 声明对账）· `metrics_report` 划算度报告；各带 `--self-test` |
 | [metrics.md](metrics.md) | 规则命中台账（上次拦到东西的日期）+ PR 台账（档位 / 返工 / ⚪）；零命中 90 天进退役候选 |
 | [.github/workflows/checks.yml](.github/workflows/checks.yml) | push / PR 跑自测 + 检查，秒级 |
 
@@ -66,7 +66,7 @@
 - 同日第二笔 = 建议 2 按任务大小分档（[01 §2.2.5](docs/governance/workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）
 - 同日第三笔 = 建议 1 分离通用规则与项目规则（[core/](core/README.md) + [project-config.md](project-config.md)；实例层原文不动）
 - 同日第四笔 = 建议 4 自动检查（[checks.md](checks.md) 登记表 + [scripts/](scripts/) 四道检查 + [CI](.github/workflows/checks.yml)）与建议 6 划算度台账（[metrics.md](metrics.md) + `scripts/metrics_report.py`）
-- 待商量：分档标准细化 + 完整路由器（[project-config §2](project-config.md) `tier.router`；`scripts/tier_check.py` 是第一版）
+- 同日第五笔 = 分档 v2 + 路由器（七点裁定全按建议：事实推档位、路径两表、阈值按桶、坑表路径字段、路由卡、入口必跑、M 单 goal 免 XML 字段；[core/01](core/01-entry-and-routing.md)、`scripts/router.py`）
 
 ## 已知限制
 

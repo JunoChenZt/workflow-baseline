@@ -13,7 +13,7 @@
 |---|---|---|
 | 1 | **依赖**：上游节点全部完成了吗？ | 等上游完成再开（除非可证明无依赖） |
 | 2 | **并行**：目前主干 / 其他工作分支 / 进行中的任务会撞同一文件吗？ | 撞 → 改串行；不撞 → 并行（上限 `{{wip_limit}}`） |
-| 3 | **风险档位**：复用 [01 §2](01-entry-and-routing.md) 结果 | 高 → 需用户确认拆解 + PR 必走 review |
+| 3 | **档位**：贴路由卡（[01 §5](01-entry-and-routing.md)）；L → 需用户确认拆解 + PR 必走 review | 路由卡缺失 → 回 01 先跑路由器 |
 | 4 | **时间 / 资源预算**：落在 `{{goal.time_budget}}` 哪一档？超预算怎么办？ | 超 → 重新评估或拆分 |
 | 5 | **Fallback**：完全失败时哪条路兜底？ | 没有就**先补 Fallback 再写主路径** |
 
@@ -58,10 +58,12 @@
 - `scope.allow` 是白名单，`forbid` 是显式黑名单，防「顺手改」。
 - `dependencies` 的 `status="done"` 必须在 5 问第 1 问已确认。
 - `tier` 只会是 M 或 L；S 档不写 XML。只升不降（[01 §5](01-entry-and-routing.md)）。
+- **M 档单 goal**：`<scope>` 与 `<verification>` 可直接用路由卡代替（卡上已有改动清单与验证命令），XML 只需补 `<objective>` / `<steps>` / `<done_criteria>` 三块。多 goal 时每个 goal 仍写全。
+- **M 档单 goal**：`<scope>` 与 `<verification>` 可直接用路由卡代替（卡上已有改动清单与验证命令），XML 只需补 `<objective>` / `<steps>` / `<done_criteria>` 三块。多 goal 时每个 goal 仍写全。
 
 ## 5. 落盘与确认
 
-- **M 档**：`<goal>` 可 inline 在对话；拆完直接进 [03](03-execute-and-verify.md)，用户可随时打断。
+- **M 档**：`<goal>` 可 inline 在对话（单 goal 时 = 路由卡 + 三块）；拆完直接进 [03](03-execute-and-verify.md)，用户可随时打断。
 - **L 档**：写入 `{{plans_dir}}/<node-id>-decomposition.md`，顶部含节点 ID、依赖图、`<goal>` 列表，以及一段**非技术导读**（每个 goal 做什么 / 为什么，不出现代码符号）；拆完**停下等用户 approve 或调整**。拿不准 → 按 L 处理。
 - 节点 ≠ 小任务：一个节点若 10 分钟内能验证完成 → 单个 `<goal>`；否则再拆。
 
@@ -69,8 +71,8 @@
 
 ```xml
 <decomposition_input>
-  <node_id/><risk_level/><tier/><judgment_reason/>
-  <pitfall_alerts/>          <!-- 08 §4 扫描结果 -->
+  <node_id/><route_card/>    <!-- 01 §5 路由卡：档位 / 事实 / H1–H3 / 验证命令 / 停止条件 -->
+  <pitfall_alerts/>          <!-- 路由卡按路径命中的 + 08 §4 subagent 扫描的（L 档） -->
   <pre_flight_answers/>      <!-- §2 五问 -->
   <task_description/>
 </decomposition_input>

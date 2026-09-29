@@ -12,7 +12,7 @@
 
 ## 1. 接入片段（复制进 `CLAUDE.md` / `AGENTS.md`）
 
-> **通用版真值源在 [core/01 §0](../../../core/01-entry-and-routing.md)**（指向骨架文档 + project-config 槽位）。下面这份是**实例层版**，指向本目录的子文档编号，两份内容同义。项目自己的红线、北极星、阈值在 [project-config.md](../../../project-config.md)。
+> **通用版真值源在 [core/01 §0](../../../core/01-entry-and-routing.md)**（指向骨架文档 + project-config 槽位）。下面这份是**实例层版**，指向本目录的子文档编号。**第 1、2 条已被骨架 v2 取代**（路由器出路由卡、事实推档位，见 core/01 §0），其余同义。项目自己的红线、北极星、阈值在 [project-config.md](../../../project-config.md)。
 
 ```markdown
 ## 过程规则（真值源 <workflow-root>/../workflow.md，按阶段只读对应子文档，不通读）
