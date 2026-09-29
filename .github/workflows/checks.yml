@@ -1,5 +1,5 @@
 # 自动检查（登记表：checks.md）。全部秒级，无第三方依赖。
-# 承重：self-test 与 lint_links 断链 = hard-fail；其余 WARN 试用（continue-on-error），升 hard-fail 需用户裁。
+# 承重：self-test、tests/ 正式测试、lint_links 断链 = hard-fail；其余 WARN 试用（continue-on-error），升 hard-fail 需用户裁。
 name: checks
 
 on:
@@ -28,6 +28,10 @@ jobs:
           python scripts/lint_pr_body.py --self-test
           python scripts/router.py --self-test
           python scripts/metrics_report.py --self-test
+      - name: 正式测试（tests/，hard-fail）
+        run: |
+          pip install -q pytest
+          python -m pytest tests -q -p no:cacheprovider
       - name: lint_links（断链 hard-fail，锚点 WARN）
         run: python scripts/lint_links.py
       - name: lint_config_slots（WARN 试用）

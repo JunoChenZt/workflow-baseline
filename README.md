@@ -7,7 +7,7 @@
 | 文件 | 干什么 |
 |---|---|
 | [checks.md](checks.md) | 每道自动检查的登记：抓什么 / 「它会响」证明 / 误报预算 / 承重（WARN 试用为主） |
-| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `router` 路由器（事实推档位 + 路由卡 + 声明对账）· `metrics_report` 划算度报告；各带 `--self-test` |
+| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `router` 路由器（事实推档位 + 路由卡 + 声明对账）· `metrics_report` 划算度报告；各带 `--self-test`，正式测试在 [tests/](tests/) |
 | [metrics.md](metrics.md) | 规则命中台账（上次拦到东西的日期）+ PR 台账（档位 / 返工 / ⚪）；零命中 90 天进退役候选 |
 | [.github/workflows/checks.yml](.github/workflows/checks.yml) | push / PR 跑自测 + 检查，秒级 |
 
