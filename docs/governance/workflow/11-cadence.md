@@ -1,6 +1,7 @@
 # 11 Cadence — 推进节奏
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/07 §3](../../../core/07-pr-and-handoff.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/03-decomposition.md](03-decomposition.md) / [docs/governance/workflow/08-retro-node-and-pr.md](08-retro-node-and-pr.md) / [docs/governance/workflow/10-verification-report.md](10-verification-report.md)
 > 关联 skill: (主流程参考)
 

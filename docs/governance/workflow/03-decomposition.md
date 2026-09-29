@@ -1,6 +1,7 @@
 # 03 Decomposition — 拆小任务 + `<goal>` XML 模板
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/02 §3–6](../../../core/02-decompose.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/02-pre-flight.md](02-pre-flight.md) / [docs/governance/workflow/04-goal-execution.md](04-goal-execution.md)
 > 关联 skill: `goal-decomposition`（已 deprecated；详细规则现在本文件 §2.4，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

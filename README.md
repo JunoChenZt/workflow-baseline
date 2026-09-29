@@ -1,12 +1,26 @@
-# subagent-workflow-baseline
+# workflow-baseline
 
-Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自检 + DoD + retro），从 `subagent-for-investment` 仓库独立打包。
+让 AI 自主推进任务时「不越线、不盲跑、交付可核」的过程规则：10 步主链路 + 分档路由 + 刹车 8 问 + DoD 三态 + 三栏交付单 + 复盘。从 `subagent-for-investment` 仓库独立出来，2026-09-29 起独立演进。
 
-## 怎么接入（第一次用先看这个）
+## 三层结构
 
-[docs/governance/workflow/00-quickstart.md](docs/governance/workflow/00-quickstart.md) —— 一段可直接复制进 `CLAUDE.md` / `AGENTS.md` 的二十行接入片段、压缩版「什么时候读哪份」表，以及一个[从用户指令走到交付的完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md)。只读这一份就能开始用。
+| 层 | 位置 | 放什么 | 谁用 |
+|---|---|---|---|
+| **骨架** | [core/](core/README.md) | 规则本体，零项目名词，参数写成 `{{key}}` | 任何项目 |
+| **配置** | [project-config.md](project-config.md) | 所有 `{{key}}` 的取值（红线 / 敏感路径 / 档位阈值 / 验证命令 / 路径 / 节奏） | 每个项目改自己的 |
+| **实例** | [docs/governance/workflow/](docs/governance/workflow/README.md) | 骨架在原项目上的展开：规则 + 参数 + 历史证据 + 坑表 + [完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md) | 原项目；别人当案例看 |
 
-## 入口
+冲突时：规则以骨架为准，参数以配置为准。
+
+## 怎么接入（三步）
+
+1. 复制 `core/` 到你的仓库。
+2. 复制 `project-config.md`，把「本项目值」列改成你的（红线、敏感路径、验证命令、目录）。
+3. 把 [core/01 §0](core/01-entry-and-routing.md) 的接入片段贴进你的 `CLAUDE.md` / `AGENTS.md`。
+
+想先看一遍「从指令到交付长什么样」：[完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md)。
+
+## 实例层入口
 
 - [docs/governance/workflow.md](docs/governance/workflow.md) — 总纲：适用条件、Reading Order、10 步主链路流程图、维护协议
 - [docs/governance/workflow/](docs/governance/workflow/) — 11 份子文档（按任务阶段切片，索引见 [workflow/README.md](docs/governance/workflow/README.md)）
@@ -41,7 +55,9 @@ Claude Code 自主推进任务的过程层基准（10 步主链路 + 刹车自�
 - 源仓库：`JunoChenZt/subagent-for-investment`（private），初始快照 main `ad07047a`，2026-09-29
 - **自 2026-09-29 起本仓库独立演进，不再与源仓库同步**。第一次修改 = 外部评审六条建议中的第 3、5 条（见 [workflow.md §7.5](docs/governance/workflow.md#75-文档迭代历史非完整)）；其余 51 个引用文件仍是快照原样
 - 同日第二笔 = 建议 2 按任务大小分档（[01 §2.2.5](docs/governance/workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）
-- 评审建议 1（拆通用骨架 / 项目配置）、4 / 6（自动检查与流程测量的季度动作）尚未做
+- 同日第三笔 = 建议 1 分离通用规则与项目规则（[core/](core/README.md) + [project-config.md](project-config.md)；实例层原文不动）
+- 待商量：分档标准细化 + 路由机制（[project-config §2](project-config.md) `tier.router`）
+- 评审建议 4 / 6（自动检查与流程测量的季度动作）尚未做，落点已写进 [core/07 §2](core/07-pr-and-handoff.md) 与 [core/README §5](core/README.md)
 
 ## 已知限制
 

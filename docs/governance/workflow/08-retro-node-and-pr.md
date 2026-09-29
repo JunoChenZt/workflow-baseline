@@ -1,6 +1,7 @@
 # 08 Retro Node & PR — 节点级复盘 + PR 描述模板
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/06 §2–3](../../../core/06-retro.md) + [core/07 §1](../../../core/07-pr-and-handoff.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/07-retro-goal.md](07-retro-goal.md) / [docs/governance/workflow/06-dod-and-evidence.md](06-dod-and-evidence.md)
 > 关联 skill: `retrospective-node` + `pr-template`（均已 deprecated；详细规则现在本文件 §2.11 / §6，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

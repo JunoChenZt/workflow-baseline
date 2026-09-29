@@ -1,6 +1,7 @@
 # 06 DoD & Evidence — DoD 四步 + evidence 收集
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/05](../../../core/05-dod-and-delivery.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/05-brake-self-check.md](05-brake-self-check.md) / [docs/governance/workflow/07-retro-goal.md](07-retro-goal.md) / [docs/governance/workflow/08-retro-node-and-pr.md](08-retro-node-and-pr.md)
 > 关联 skill: `dod-checklist`（已 deprecated；详细规则现在本文件 §2.8 + §2.9，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

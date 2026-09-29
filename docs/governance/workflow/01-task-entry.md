@@ -1,6 +1,7 @@
 # 01 Task Entry — 大任务进入 + 风险判定
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/01](../../../core/01-entry-and-routing.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/02-pre-flight.md](02-pre-flight.md) / [docs/governance/workflow/03-decomposition.md](03-decomposition.md) / [docs/governance/workflow/04-goal-execution.md](04-goal-execution.md)
 > 关联 skill: `risk-judgment`（已 deprecated；详细规则现在本文件 §2.2，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

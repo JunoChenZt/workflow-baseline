@@ -1,6 +1,7 @@
 # 07 Retro Goal — Goal 级 retro
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/06 §1](../../../core/06-retro.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/06-dod-and-evidence.md](06-dod-and-evidence.md) / [docs/governance/workflow/08-retro-node-and-pr.md](08-retro-node-and-pr.md) / [docs/governance/workflow/09-known-pitfalls.md](09-known-pitfalls.md)
 > 关联 skill: `retrospective-goal`（已 deprecated；详细规则现在本文件 §2.10，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

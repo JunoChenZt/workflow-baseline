@@ -1,6 +1,7 @@
 # 02 Pre-flight — 节点切入 5 问
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/02 §1–2](../../../core/02-decompose.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/01-task-entry.md](01-task-entry.md) / [docs/governance/workflow/03-decomposition.md](03-decomposition.md)
 > 关联 skill: `pitfall-scout`（设计见 [docs/governance/skill-design.md §3.1](../skill-design.md#31-pitfall-scout)）/ `goal-decomposition`（已 deprecated；详细规则现在 [03-decomposition.md §2.4](03-decomposition.md#24-拆小任务)，设计历史见 [skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
 

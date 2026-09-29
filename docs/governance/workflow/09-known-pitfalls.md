@@ -1,6 +1,7 @@
 # 09 Known Pitfalls — 已知坑 / 防回归 checklist
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/08](../../../core/08-pitfall-registry.md)（骨架只定格式与协议，本表是项目资产） —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/07-retro-goal.md](07-retro-goal.md)（must_update 落盘到此） / [docs/governance/workflow/10-verification-report.md](10-verification-report.md)（子阶段交接审视 status）
 > 关联 skill: `pitfall-scout`（设计见 [docs/governance/skill-design.md §3.1](../skill-design.md#31-pitfall-scout)）/ `verification-report`（设计见 [docs/governance/skill-design.md §3.2](../skill-design.md#32-verification-report)）
 

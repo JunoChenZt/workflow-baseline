@@ -1,6 +1,7 @@
 # 10 Verification Report — 子阶段交接审视
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/07 §2](../../../core/07-pr-and-handoff.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/09-known-pitfalls.md](09-known-pitfalls.md) / [docs/governance/workflow/07-retro-goal.md](07-retro-goal.md) / [docs/governance/workflow/11-cadence.md](11-cadence.md)
 > 关联 skill: `verification-report`（设计见 [docs/governance/skill-design.md §3.2](../skill-design.md#32-verification-report)）
 

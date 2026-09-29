@@ -1,6 +1,7 @@
 # 04 Goal Execution — 单 /goal 执行 + 自验
 
 > 父文档: [docs/governance/workflow.md](../workflow.md)
+> 骨架: [core/03](../../../core/03-execute-and-verify.md) —— 规则本体以骨架为准，本文件是实例层（含项目参数与历史证据）
 > 关联子文档: [docs/governance/workflow/03-decomposition.md](03-decomposition.md) / [docs/governance/workflow/05-brake-self-check.md](05-brake-self-check.md) / [docs/governance/workflow/09-known-pitfalls.md](09-known-pitfalls.md)
 > 关联 skill: (主流程，非 skill；下游接 `brake-self-check`)
 

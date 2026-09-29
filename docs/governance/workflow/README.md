@@ -1,5 +1,7 @@
 # Workflow 子文档导航
 
+> **本目录是实例层**：通用骨架在 [core/](../../../core/README.md)，项目参数在 [project-config.md](../../../project-config.md)。规则冲突以骨架为准；本目录保留项目参数、历史证据与坑表。每份子文档头部标了对应的骨架文档。
+
 本目录是 [docs/governance/workflow.md](../workflow.md) 的分层切片。主文档保留 §0 适用前置 + §0.1 Reading Order + §1 主链路总览 + §7 维护协议；详细规则按主题分在 11 个子文档里，另有一份入口 [00-quickstart.md](00-quickstart.md) 和 `examples/` 下的完整案例。
 
 ## 子文档清单
