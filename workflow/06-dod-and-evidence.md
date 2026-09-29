@@ -1,0 +1,215 @@
+# 06 DoD & Evidence — DoD 四步 + evidence 收集
+
+> 父文档: [docs/governance/workflow.md](../workflow.md)
+> 关联子文档: [docs/governance/workflow/05-brake-self-check.md](05-brake-self-check.md) / [docs/governance/workflow/07-retro-goal.md](07-retro-goal.md) / [docs/governance/workflow/08-retro-node-and-pr.md](08-retro-node-and-pr.md)
+> 关联 skill: `dod-checklist`（已 deprecated；详细规则现在本文件 §2.8 + §2.9，设计历史见 [docs/governance/skill-design.md §3.3](../skill-design.md#33-已-deprecated-skill7-个详细设计已迁至-workflow-子文档)）
+
+## 何时读这份文档
+
+[05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) 刹车自检未命中（或用户裁决放行）之后，进入 [07-retro-goal.md §2.10](07-retro-goal.md#210-goal-级-retro按需) goal 级 retro 判定之前。
+
+## 概览
+
+- §2.8 DoD 四步：Code Review / Corner Case / 冒烟 / 彻底跑通；任一失败回 [04-goal-execution.md §2.5](04-goal-execution.md#25-单个-goal-执行) 重做；≥ 3 次升级重新拆解
+- §2.9 evidence 收集：5 类 evidence 路径汇总成 summary，进 PR 描述；缺失 / 盲跑 → 回 §2.8 补
+- §2.9.4 **裁决落地 → 回填清单**：本 goal 若定了 / 改了 / 明确不改任何阈值、判据、条目状态，按 **8 格固定名单**逐项点名回填（每格「改了 <link>」或「N/A + 理由」，**不许留空**）—— 补的是 [R7](../../../CLAUDE.md)「状态切换」够不着的那条缝
+
+---
+
+## 2.8 DoD 四步
+
+**时机**：[05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) 刹车自检未命中（或用户裁决放行）后。
+
+**关联 skill**：`dod-checklist`（详见 SKILL.md）
+
+### 2.8.1 Code Review
+
+- self-review 必做
+- schema / prompt / Fallback / 路由变更 → 必走 PR review（即使仓库 private 也建 PR 留 trace）
+- review 视角：
+  - **北极星**：未引入"假装是决策"的逻辑（自动下单 / 调仓 / 无人确认）
+  - **稳定性**：未破坏已 ✅ DONE 节点；fallback 完整；不会让整 run 崩
+  - **契约**：未突破 DEBATE_KEY_CLAIMS_CONTRACT / EXECUTION_PLAN_CONTRACT / role prompt 不可覆盖段
+  - **测试设计质量**（A6.1.1.1 retro 沉淀）：
+    - 每条测试是否无条件 assert（无 if/skip/mock 让 assert 整段不跑）
+    - mock 设计是否会让测试看起来 pass 但实际未验证目标行为
+    - 每条 assert 是否在所有合法输入下都会被求值
+    - 测试代码是否存在"防御性 guard" 实为"隐式 skip" 的反模式（详 [05-brake-self-check.md §2.7.5 Q5](05-brake-self-check.md#275-8-问详细判定标准) 隐式 skip 4 类清单）
+
+**输出**：review notes（markdown，进 PR 描述）
+
+### 2.8.2 Corner Case
+
+- **跑该段表列出的所有 case（不删、不放 skip）**
+- 失败 → **优先修主路径 / 修 Fallback**
+- **改 case 的硬门槛**：仅当 case 与产品目标 / 北极星 / S2todo 明确冲突时才允许改 case；改 case **必须在 PR 描述中显式写明**：
+  - 原 case 内容（原文 quote）
+  - 修改原因（哪条目标 / 哪条原则冲突 + 证据链接）
+  - 影响范围（哪些下游 / 其他 case 受波及）
+  - 是否需要回填新 case 替代
+- 任何"为了通过把 case 放松"的改动 = 隐性降低测试标准，**禁止**（触发 [05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) Q5）
+- 新发现 case → 回填该段表（持续累积，禁丢失）
+
+**输出**：corner case 表的当前快照 + 新增 case 列表
+
+### 2.8.3 冒烟
+
+- 端到端最小 query 至少 1 single_ticker + 1 macro_event
+- 整 run 不崩；fallback report 比例不上升
+- P50 < 60s / P95 < **120s**（2026-09-08 由 90s 抬·[docs/roadmap/S2.md §7.4](../../roadmap/S2.md)）⚠️ 实测**端到端** 379–535s（大头在后 8 段：分析师 / 辩论 / 投票；**第一段实测仅 51.8s**）—— 该线长期是**目标**不是在守的闸
+
+**输出**：smoke run 的 archive 路径 + 关键指标
+
+### 2.8.4 彻底跑通才能进下一节点
+
+- 任一项失败 → 修完再继续
+- 任何 "known issue 先 skip" 必须升级为 deferred item 入 [docs/roadmap/S2.md §9](../../roadmap/S2.md) 并标明计划时机；**不允许沉默 skip**（沉默 skip 触发 [05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) Q5）
+
+### 2.8.5 DoD 失败的处理
+
+- DoD 任一步失败 → 回到 [04-goal-execution.md §2.5](04-goal-execution.md#25-单个-goal-执行) 同 goal 重做
+- 重做次数：1-2 次正常；**≥ 3 次** → 升级为"goal 拆解有问题"，回到 [03-decomposition.md §2.4](03-decomposition.md#24-拆小任务) 重新拆解
+- 重做过程中**不允许降低 DoD 标准**（触发 [05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) Q5）
+
+### 2.8.6 DoD 全过 → 进入 §2.9 evidence 收集
+
+### 2.8.7 临时脚本处置 (DoD 4 步完成后, 进 §2.9 前)
+
+DoD 4 步全部 pass + §2.8.6 判定进入 §2.9 evidence 收集前,
+主 Claude **必须**核对项目根 / tests/ 下无以下临时残留:
+
+- `test_quick*.py` / `test_tmp*.py`
+- `debug_*.py` / `dbg_*.py`
+- `tmp_*.py` / `scratch_*.py`
+- 任何"为了调试或快速验证"创建但不属于正式测试资产的脚本
+
+**处置规则**:
+- 有沉淀价值 → 转正为正式测试, 进 `tests/` 标准目录
+- 一次性使用 → `rm` 删除
+- **不允许**"留下次再说" / "可能以后还用得到"
+
+**验证命令**:
+
+```bash
+find . -name "test_quick*.py" -o -name "test_tmp*.py" \
+       -o -name "debug_*.py" -o -name "dbg_*.py" \
+       -o -name "tmp_*.py" -o -name "scratch_*.py" 2>/dev/null
+```
+
+输出非空 = DoD 不通过, 必须处置后再进 DoD。
+
+---
+
+## 2.9 evidence 收集
+
+**时机**：DoD 全过后，进 [07-retro-goal.md §2.10](07-retro-goal.md#210-goal-级-retro按需) retro 判定之前。
+
+**关联 skill**：嵌入 `dod-checklist` skill 的后置动作（不单独 skill）。
+
+### 2.9.1 evidence 类型
+
+| 类型 | 来源 | 落地路径 |
+|---|---|---|
+| Review notes | §2.8.1 Code Review 输出 | PR 描述（不单独文件）/ 或 `docs/observations/<node-id>-review.md` |
+| Corner case logs | §2.8.2 跑测的输出 | pytest 输出片段（embed in PR） / `tests/_archives/<timestamp>.log` |
+| Smoke run logs | §2.8.3 冒烟 archive | `_archives/<timestamp>.json` |
+| Archive replay result | 旧 archive 喂新 schema 的 replay log | `_archives/replay-<timestamp>.log` / 或 `N/A 不动 schema 时显式标` |
+| 改 case 证据 | §2.8.2 改 case 时的必填四要素 | PR 描述 corner case 段 |
+
+### 2.9.2 evidence 收集动作
+
+1. **收集所有上述路径** → 形成清单
+2. **验证路径真实存在**（防"盲跑不算"）
+3. **生成 evidence summary**（结构化 markdown）：
+
+   ```markdown
+   ## Evidence Summary (goal <goal-id>)
+   - Review notes: <path-or-PR-comment>
+   - Corner case logs: <path>
+   - Smoke archive: <path>
+   - Archive replay: <path 或 N/A>
+   - Modified cases: <count> (详见 PR §case 段)
+   - 裁决回填清单: <见 §2.9.4，8 格逐项；本 goal 无裁决落地则 N/A>
+   ```
+
+4. **evidence summary 进入 PR 描述模板**（[08-retro-node-and-pr.md §6](08-retro-node-and-pr.md#6-pr-描述模板决策溯源)）
+5. **承重口径改动所依据的归档回放 / 探针，脚本与输出落一份 observation 产物**（`docs/observations/<node>-<goal>-<主题>-<日期>/` 下放 `replay.py` / `probe.py` + 输出 md，路径进 evidence summary 的 Archive replay 一格），不只写进 PR 描述或条目正文 —— PR 描述合并后难检索、数字无法复算。（CRED.1.G2 / 1.G3 retro baseline should_update·N=2·2026-09-24 节点收口 adopt；簇 2 / 簇 3 各 goal 已按此执行，本条把惯例写成规则。与 §2.8.7「临时脚本处置」不冲突：落进 observation 目录的回放脚本属证据资产、不是临时残留。）
+
+### 2.9.3 evidence 缺失的处理
+
+- 任一应有 evidence 缺失 → **不进 [07-retro-goal.md §2.10](07-retro-goal.md#210-goal-级-retro按需)**，回到 §2.8 补
+- 显式标 N/A 必须有理由（如 "本 goal 不动 schema，无 archive replay"）
+- 盲跑（没跑测就说 pass）= 触发 [05-brake-self-check.md §2.7](05-brake-self-check.md#27-刹车自检8-问) Q5，停
+
+### 2.9.4 裁决落地 → **回填清单**（backlog **BU** 机制化 · 2026-09-04 立）
+
+> **治的是什么**：做完一个裁决（线不动 / 立账 / 降档 / 观察点转正 / 口径改写…），
+> **代码或条目改了，但别人照着办事的那几份文档没跟上** —— 真值源静默滞后。
+> 受害者不是当事人，是**几周后照文档办事的那个人**：他白查一轮，还可能得出与事实**相反**的结论。
+>
+> **为什么单靠 [R7](../../../CLAUDE.md) 不够（规则接缝，非执行疏忽）**：R7 管的是「**状态切换**」
+> （PR close/merge、翻案、flag 放弃、节点收口）；「**阈值裁决 / 条目立账**」不在它的触发事件类别里。
+> 本节就是补这条缝。
+>
+> 🔑 **为什么必须是固定名单、不能靠当场想**：2026-08-31 那次**是照着列了清单再收口的**（BU 的正面数据点），
+> 四处全同步 —— **但清单本身漏了 backlog 条目正文**，结果那条登记项的数字废弃了整整一周，
+> 到 09-04 跑 e2e 才撞见。⇒ **人工现列清单必有盲区**。名单写死在这里，漏了看得见。
+
+**何时触发**（任一为真，与 §2.9 其余步骤同批做）：
+
+1. 定了、改了、或**明确不改**任何一条阈值 / 判据 / 预算线 / 触发条件
+2. 立了、关了、降档了任何一条 backlog 条目或观察点
+3. 把某个观察点转正成条目，或把某条规则/检查项**拔掉**
+4. 改了任何"以后按这个口径办"的说法
+
+**动作 —— 逐格过，每格必须给「改了 &lt;链接&gt;」或「N/A + 一句理由」，不许留空**：
+
+| # | 候选真值源 | 典型形态 |
+|---|---|---|
+| 1 | **裁决自己那条 backlog 条目的正文** | 条目正文里引用的旧数字 / 旧阈值 —— ⚠️ **08-31 漏的就是这格**，放第一位 |
+| 2 | [backlog](../backlog.md) 里**引用该结论的其它条目** | 别的条目正文引了这个数 / 这条线 |
+| 3 | 跑批与操作指南（如[段式跑指南](../../observations/e2e-runs/segmented-e2e-guide.md)、[质量门](../e2e-quality-gate.md)） | 指南里的判据文本、指路链接 |
+| 4 | [验收判据表](../e2e-acceptance-standard.md) | 维度归属 / 承重边界（hard-fail vs advisory） |
+| 5 | [观察点表](../../observations/should_update_observations.md) | `O-*` 观察点的现值与计数 |
+| 6 | 代码常量与注释 / docstring | 注释里写着旧值、旧机理 |
+| 7 | 阶段路线图（[S2](../../roadmap/S2.md) 等）与主链路文档 | 状态表、预算线块 |
+| 8 | **auto-memory**（含 `MEMORY.md` 索引行） | 记着旧结论的那条 memory |
+
+**再加两道，与 R7 同一套手法**：
+
+- **宽 grep 全仓扫**，关键词**必须含别名和旧框架词**（凭记忆列点必漏）。
+- **分 live 与历史**：断言"现在如何"的 → **就地改口径**；point-in-time 记录（dated 落账块 / 归档 FINDINGS / 规划文档）→ **加前向一句，正文不动**；
+  ⛔ **closed 条目 / 已冻结 verdict / 节点 retro = [Q6 冻结档](05-brake-self-check.md)，连 banner 都不加** —— 前向事实写去**引用方**。
+- **收口后再 grep 一遍**，确认 live 旧措辞清零（残留只应是"否定旧框架"的新文字）。
+
+**进 evidence summary**（§2.9.2 第 3 步模板追加一行）：
+
+```markdown
+- 裁决回填清单: <8 格逐项：改了 <link> / N/A + 理由>   ← 本 goal 无裁决落地则整行写 N/A
+```
+
+**缺失的处理**（与 §2.9.3 同级）：8 格里**任一格既没改也没写 N/A 理由** → 视同 evidence 缺失，
+**不进 [§2.10 retro](07-retro-goal.md#210-goal-级-retro按需)**，回来补。
+
+⚠️ **本节只要求"点名 + 交代"，不替你判断该不该改**：写 N/A 是完全正当的答案，
+**空着不是**。这条纪律与 §2.9.3「显式标 N/A 必须有理由」同源。
+
+---
+
+---
+
+## Cross-references
+
+**上游（我引用谁）**：
+
+- [05-brake-self-check.md](05-brake-self-check.md) — 8 问未命中 / 用户裁决放行
+- [03-decomposition.md](03-decomposition.md) — `<goal>` 的 `<verification>` / `<done_criteria>`
+- [04-goal-execution.md](04-goal-execution.md) — 自验报告中的延迟 / fallback ratio 进冒烟段
+- [docs/roadmap/S2.md](../../roadmap/S2.md) — §7.4 延迟预算 / §9 Deferred 入账 / 该段 corner case 表
+
+**下游（谁引用我）**：
+
+- [07-retro-goal.md](07-retro-goal.md) — DoD 全过 + evidence 收齐后进 retro 6 条触发判定
+- [08-retro-node-and-pr.md](08-retro-node-and-pr.md) — evidence summary 进 PR 描述模板
+- `dod-checklist` SKILL — 消费 §2.8 + §2.9 全节（含 §2.9.4 回填清单）
+- [backlog.md](../backlog.md) — **BU** 条目触发条件 (B)「下次动收口文档时机制化」由 §2.9.4 兑现
