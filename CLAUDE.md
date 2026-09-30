@@ -1,10 +1,10 @@
 # CLAUDE.md — workflow-baseline
 
-本仓库是一套「让 AI 自主推进任务时不越线、不盲跑、交付可核」的过程规则骨架。**它用自己的规则**：下面的过程规则段逐字来自 [core/01 §0](core/01-entry-and-routing.md)，改那边要同步这边（`scripts/lint_config_slots.py` 不核这一点，靠 PR review）。
+本仓库是一套「让 AI 自主推进任务时不越线、不盲跑、交付可核」的过程规则骨架。**它用自己的规则**：下面的过程规则段逐字来自 [core/01 §0](core/01-entry-and-routing.md)，改那边要同步这边（`scripts/lint_config_slots.py` 核，分叉即报）。
 
 ## 本仓库红线（任何时刻触到立即停，不等判定）
 
-- 不把仓库设为 public（快照层含源项目内部材料）
+- 不把仓库设为 public（公开与许可是 S2 G12，用户裁定前保持 private）
 - 不直推 `main`；所有改动走工作分支 + PR，让 PR 事件上的检查跑
 - 改 `core/` = 改所有接入项目的规则，走 [core/README §5](core/README.md) 维护协议；重大调整（改步骤 / 三态 / 三栏 / 档位规则 / 分流表 / 坑表标记）先停下问
 - 不把任何项目的内部材料（记录、证据、源码片段）放进本仓；骨架保持零项目名词（`scripts/lint_config_slots.py` 守着）
@@ -16,7 +16,7 @@
 3. 每个 goal 做完按序：跑 verification + 自验报告（core/03）→ 刹车 8 问（core/04，任一「是 / 不确定」停下问我）→ DoD 四步（core/05）→ evidence。
 4. DoD 每步只有三态 ✅ / ❌ / ⚪。没跑必须标 ⚪ 并写四种原因之一；能跑没跑是盲跑。有 ❌ 不许交付；有 ⚪ 可以交付，收不收我定。
 5. 交付一律三栏交付单（core/05 §5）：改了什么 / 验证了什么、怎么验的 / 未验证什么、为什么。第三栏没有写「无」，不许空着；非「无」时全文不许写「全部通过」。
-6. 红线（project-config `red_lines` 与上面「本仓库红线」）任何时刻触到立即停，不等任何判定。
+6. 红线（project-config `red_lines`，以及项目指令文件里另列的红线）任何时刻触到立即停，不等任何判定。
 7. goal 有返工、触发过刹车、暴露过意外坑、改过 case、属 L 档 —— 任一为真跑 goal 级 retro（core/06），否则跳过。
 8. 节点收口：retro 5 问（core/06 §2）→ PR 描述按 core/07 模板。
 9. 踩到坑先查坑表（project-config `pitfall_table`）；新坑回填坑表并写「路径:」字段，让路由器下次自动命中；不是加新流程。
