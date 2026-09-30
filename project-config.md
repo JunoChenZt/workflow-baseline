@@ -11,7 +11,7 @@
 | key | 本项目值 | 说明 |
 |---|---|---|
 | `project.name` | `subagent-for-investment` | 只用于命名与引用 |
-| `project.instructions_file` | [CLAUDE.md](CLAUDE.md) | 给 AI 读的项目顶层指令；骨架的接入片段复制到这里 |
+| `project.instructions_file` | 源项目：[docs/source-snapshot/CLAUDE.md](docs/source-snapshot/CLAUDE.md)（快照）；本仓库自己：[CLAUDE.md](CLAUDE.md) | 给 AI 读的项目顶层指令；骨架的接入片段复制到这里。⚠️ 本表其余「本项目值」仍是源项目的，本仓库自身取值待换 |
 | `project.north_star` | 装备决策者，不取代决策者：不自动下单 / 调仓 / 进入任何无人确认的资金链路 | 刹车 Q3 与红线的语义来源；别的项目换成自己的「永不越线」一句话 |
 
 ## 1. 红线与确认清单（刹车 Q1–Q4、执行中硬边界读这里）

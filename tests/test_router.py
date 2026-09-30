@@ -222,16 +222,20 @@ def test_main_base_mode_uses_real_git_diff(tmp_path, monkeypatch):
     run("add", "-A")
     run("commit", "-q", "-m", "base")
     run("branch", "base")
-    (repo / "src" / "app" / "a.py").write_text("import requests\nx = 2\n", encoding="utf-8")
+    (repo / "src" / "app" / "a.py").write_text("import requests\nx = 2  # 中文注释：GBK 控制台下 subprocess 按 locale 解码会炸\n", encoding="utf-8")
+    (repo / "RULES.md").write_text("红线：禁止 git push --force 与 DROP TABLE\n", encoding="utf-8")
+    run("add", "-A")
     run("commit", "-q", "-am", "change")
     monkeypatch.setattr(router, "ROOT", repo)
     monkeypatch.setattr(router, "load", lambda: dict(CFG, pitfalls={}))
     rows = router.git_rows("base")
-    assert [(r["path"], r["status"]) for r in rows] == [("src/app/a.py", "M")]
+    assert [(r["path"], r["status"]) for r in rows] == [("RULES.md", "A"), ("src/app/a.py", "M")]
     added = router.git_added_lines("base")
-    assert "import requests" in added
+    assert "import requests" in added and "中文注释" in added      # 2026-09-30 真跑撞出：text=True 默认 locale 解码
+    assert "DROP TABLE" not in added                                # .md 里的规则文案不进反查
     r = router.route(rows, NO_H, CFG, [], repo, added)
-    assert r["tier"] == "S" and any("H2" in w for w in r["warnings"])   # 声明否但 diff 有网络 import → 警告
+    assert r["tier"] == "M"                                          # RULES.md 与 src 跨顶层目录
+    assert [w[:2] for w in r["warnings"]] == ["H2"]                  # 只有网络 import 的警告，没有 .md 文案触发的 H3
 
 
 def test_self_test_passes():

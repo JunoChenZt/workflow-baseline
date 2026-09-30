@@ -61,8 +61,8 @@ def parse_numstat(text: str) -> list[dict]:
 
 def git_rows(base: str) -> list[dict]:
     rng = f"{base}...HEAD"
-    rows = parse_numstat(subprocess.run(["git", "diff", "--numstat", rng], cwd=ROOT, capture_output=True, text=True, check=True).stdout)
-    status = subprocess.run(["git", "diff", "--name-status", rng], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+    rows = parse_numstat(subprocess.run(["git", "diff", "--numstat", rng], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout)
+    status = subprocess.run(["git", "diff", "--name-status", rng], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
     st = {}
     for line in status.splitlines():
         parts = line.split("\t")
@@ -73,9 +73,17 @@ def git_rows(base: str) -> list[dict]:
     return rows
 
 
-def git_added_lines(base: str) -> str:
-    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout
-    return "\n".join(l[1:] for l in out.splitlines() if l.startswith("+") and not l.startswith("+++"))
+def git_added_lines(base: str, skip_suffixes: tuple[str, ...] = (".md", ".txt", ".rst")) -> str:
+    """diff 里的新增行，供 H 反查。跳过文档类文件：文档里写「DROP TABLE」「git push --force」是在讲规则，不是在做操作。"""
+    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
+    kept, skipping = [], False
+    for l in out.splitlines():
+        if l.startswith("+++ "):
+            skipping = l.strip().endswith(skip_suffixes)
+            continue
+        if l.startswith("+") and not skipping:
+            kept.append(l[1:])
+    return "\n".join(kept)
 
 
 # ---------- 事实 ----------

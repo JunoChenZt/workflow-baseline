@@ -25,7 +25,7 @@
 
 1. 复制 `core/` 到你的仓库。
 2. 复制 `project-config.md`，把「本项目值」列改成你的（红线、敏感路径、验证命令、目录）。
-3. 把 [core/01 §0](core/01-entry-and-routing.md) 的接入片段贴进你的 `CLAUDE.md` / `AGENTS.md`。
+3. 把 [core/01 §0](core/01-entry-and-routing.md) 的接入片段贴进你的 `CLAUDE.md` / `AGENTS.md`（本仓库自己的 [CLAUDE.md](CLAUDE.md) 就是这么做的，可当样板）。
 
 想先看一遍「从指令到交付长什么样」：[完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md)。
 
@@ -52,7 +52,7 @@
 
 与源仓库**同构**，这样文档里的相对链接原样可用。除上面 12 份工作流文档外，其余 51 个文件都是它们**直接链接到**的引用对象，按原路径放置：
 
-- `CLAUDE.md` — 顶层原则 / 红线 / workflow 入口
+- `docs/source-snapshot/CLAUDE.md` — 源项目的顶层指令快照（2026-09-30 起根目录 `CLAUDE.md` 是本仓库自己的）
 - `docs/governance/` — git-workflow、skill-design、backlog、e2e 验收标准与质检门、未验前提协议等
 - `docs/roadmap/` — S2 任务清单、roadmap v3.4
 - `docs/observations/` / `docs/retro/S2/` / `docs/plans/` — 坑表与 retro 引用的观察记录、节点复盘、拆解文档
