@@ -35,6 +35,11 @@
   动作: 脚本入口 `sys.stdout.reconfigure(encoding="utf-8", errors="replace")`
   守护：五个脚本入口已加
 
+- 🔴 [active] 叠 PR 用 `merge -X ours` 合 squash 后的 main，会把「上游加、本分支删」的文件复活（2026-09-30 · #3 合并：源项目 CLAUDE.md 快照复活，28 断链进 main）
+  路径: ^\.github/, ^CLAUDE\.md$
+  动作: 叠 PR 先 `rebase` 到 squash 后的 main（或从 main 重建分支 cherry-pick），不用三方合并；合并前 `git diff origin/main --stat` 逐行核
+  守护：无守护，靠本条；待办 B9
+
 ## 2. 路由与分档
 
 - 🟡 [mitigated] 默认值的方向要和规则一致：H 漏答 / 拼错曾静默按「否」算（放行方向），而规则是「拿不准往高一档」（2026-09-30 review）

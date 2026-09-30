@@ -21,6 +21,8 @@
 | B5 | `tier.s_limits` 两个数字按台账调 | 第一次里程碑交接（M1 收口）跑 `metrics_report` | project-config §2 | 开放 |
 | B6 | 骨架 [core/01](core/01-entry-and-routing.md) 里「S 档可不开 PR」与本仓「一律走 PR」的关系写清（骨架给的是上限，配置可以更严） | 下次动 core/01 | 本仓 project-config §1 | 开放 |
 | B7 | 完整案例里第 8 步 DoD 的「冒烟」在无运行时的仓库怎么定义，骨架 core/05 补一句 | 下次动 core/05 | PR #2：本仓把冒烟定义成「全套检查跑一遍」 | 开放 |
+| B8 | 核验命令链禁用管道：CLAUDE.md「怎么跑检查」段与 CI 一致改成逐条命令、退出码直判；或给五个脚本加 `--quiet` 让尾巴不用 `tail` | 下次动 CLAUDE.md 或 checks.yml | 2026-09-30 #3 合并事故（坑表 §1 第一条命中） | 开放 |
+| B9 | 叠 PR 一律先 rebase 到 squash 后的 main 再合，不用 `merge -X ours`（三方合并会把上游加、本分支删的文件复活） | 下次开叠 PR | 2026-09-30 #3 合并事故 | 开放 |
 
 ## 已关闭
 
