@@ -1,75 +1,49 @@
 # workflow-baseline
 
-让 AI 自主推进任务时「不越线、不盲跑、交付可核」的过程规则：10 步主链路 + 分档路由 + 刹车 8 问 + DoD 三态 + 三栏交付单 + 复盘。从 `subagent-for-investment` 仓库独立出来，2026-09-29 起独立演进。
+让 AI 自主推进任务时「不越线、不盲跑、交付可核」的一套过程规则，通用，零项目名词：**路由卡定档 → 拆解 → 执行自验 → 刹车 8 问 → DoD 三态 → 三栏交付单 → 复盘 → PR**。本仓库自己也按这套规则运作。
 
-## 自动检查与台账
+## 怎么接入（三步，不改骨架）
+
+1. 复制 `core/` 到你的仓库。
+2. 复制 [project-config.md](project-config.md)，把「本项目值」列改成你的（红线、L / M 路径、验证命令、目录）。
+3. 把 [core/01 §0](core/01-entry-and-routing.md) 的接入片段贴进你的 `CLAUDE.md` / `AGENTS.md`（本仓库的 [CLAUDE.md](CLAUDE.md) 就是这么做的，可当样板）。
+
+想先看一遍「从指令到交付长什么样」：[完整案例](core/examples/walkthrough-cli-json-flag.md)。
+
+## 两层结构
+
+| 层 | 位置 | 放什么 |
+|---|---|---|
+| **骨架** | [core/](core/README.md) | 规则本体，零项目名词，参数写成 `{{key}}`；8 份文档 + 1 个案例 |
+| **配置** | [project-config.md](project-config.md) | 所有 `{{key}}` 的取值；本仓库填的是它自己的 |
+
+冲突时：规则以骨架为准，参数以配置为准。
+
+| # | 骨架文档 | 一句话 |
+|---|---|---|
+| 01 | [entry-and-routing](core/01-entry-and-routing.md) | 任务进入；事实 F1–F6 + 三个是非题 H1–H3 → S / M / L；路由卡；只升不降 |
+| 02 | [decompose](core/02-decompose.md) | pre-flight 5 问；`<goal>` XML；M 单 goal 可用路由卡代替 scope / verification |
+| 03 | [execute-and-verify](core/03-execute-and-verify.md) | 执行前自检；硬边界即停；自验报告 |
+| 04 | [brake](core/04-brake.md) | 刹车 8 问；Q5「到上限不自行免判」；Q6 冻结档 |
+| 05 | [dod-and-delivery](core/05-dod-and-delivery.md) | DoD 四步每步三态 ✅ / ❌ / ⚪；evidence；回填清单；**三栏交付单** |
+| 06 | [retro](core/06-retro.md) | goal 级 retro 三档；节点级 5 问；finding 去处 N = a + b + c |
+| 07 | [pr-and-handoff](core/07-pr-and-handoff.md) | PR 模板；里程碑交接；节奏与并行上限 |
+| 08 | [pitfall-registry](core/08-pitfall-registry.md) | 坑表格式（带「路径:」）；只增不减；元规则；两遍扫描 |
+
+## 自动检查与台账（本仓库自己的项目资产）
 
 | 文件 | 干什么 |
 |---|---|
 | [checks.md](checks.md) | 每道自动检查的登记：抓什么 / 「它会响」证明 / 误报预算 / 承重（WARN 试用为主） |
-| [scripts/](scripts/) | `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `router` 路由器（事实推档位 + 路由卡 + 声明对账）· `metrics_report` 划算度报告；各带 `--self-test`，正式测试在 [tests/](tests/) |
-| [metrics.md](metrics.md) | 规则命中台账（上次拦到东西的日期）+ PR 台账（档位 / 返工 / ⚪）；零命中 90 天进退役候选 |
-| [.github/workflows/checks.yml](.github/workflows/checks.yml) | push / PR 跑自测 + 检查，秒级 |
-
-## 三层结构
-
-| 层 | 位置 | 放什么 | 谁用 |
-|---|---|---|---|
-| **骨架** | [core/](core/README.md) | 规则本体，零项目名词，参数写成 `{{key}}` | 任何项目 |
-| **配置** | [project-config.md](project-config.md) | 所有 `{{key}}` 的取值（红线 / 敏感路径 / 档位阈值 / 验证命令 / 路径 / 节奏） | 每个项目改自己的 |
-| **实例** | [docs/governance/workflow/](docs/governance/workflow/README.md) | 骨架在原项目上的展开：规则 + 参数 + 历史证据 + 坑表 + [完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md) | 原项目；别人当案例看 |
-
-冲突时：规则以骨架为准，参数以配置为准。
-
-## 怎么接入（三步）
-
-1. 复制 `core/` 到你的仓库。
-2. 复制 `project-config.md`，把「本项目值」列改成你的（红线、敏感路径、验证命令、目录）。
-3. 把 [core/01 §0](core/01-entry-and-routing.md) 的接入片段贴进你的 `CLAUDE.md` / `AGENTS.md`（本仓库自己的 [CLAUDE.md](CLAUDE.md) 就是这么做的，可当样板）。
-
-想先看一遍「从指令到交付长什么样」：[完整案例](docs/governance/workflow/examples/walkthrough-cli-json-flag.md)。
-
-## 实例层入口
-
-- [docs/governance/workflow.md](docs/governance/workflow.md) — 总纲：适用条件、Reading Order、10 步主链路流程图、维护协议
-- [docs/governance/workflow/](docs/governance/workflow/) — 11 份子文档（按任务阶段切片，索引见 [workflow/README.md](docs/governance/workflow/README.md)）
-
-| # | 子文档 | 阶段 |
-|---|---|---|
-| 01 | [task-entry](docs/governance/workflow/01-task-entry.md) | 任务进入 + 风险判定 + 分档 S / M / L（只升不降） |
-| 02 | [pre-flight](docs/governance/workflow/02-pre-flight.md) | 节点切入 5 问 |
-| 03 | [decomposition](docs/governance/workflow/03-decomposition.md) | 拆小任务 + `<goal>` XML |
-| 04 | [goal-execution](docs/governance/workflow/04-goal-execution.md) | Goal 执行 + 自验 |
-| 05 | [brake-self-check](docs/governance/workflow/05-brake-self-check.md) | 刹车自检 8 问 |
-| 06 | [dod-and-evidence](docs/governance/workflow/06-dod-and-evidence.md) | DoD 四步（每步三态 ✅/❌/⚪）+ evidence + 三栏交付单 |
-| 07 | [retro-goal](docs/governance/workflow/07-retro-goal.md) | Goal 级 retro 三档 |
-| 08 | [retro-node-and-pr](docs/governance/workflow/08-retro-node-and-pr.md) | 节点复盘 + PR 模板 |
-| 09 | [known-pitfalls](docs/governance/workflow/09-known-pitfalls.md) | 已知坑表 |
-| 10 | [verification-report](docs/governance/workflow/10-verification-report.md) | 子阶段交接审视 |
-| 11 | [cadence](docs/governance/workflow/11-cadence.md) | 节奏 + 并行限制 |
-
-## 目录结构
-
-与源仓库**同构**，这样文档里的相对链接原样可用。除上面 12 份工作流文档外，其余 51 个文件都是它们**直接链接到**的引用对象，按原路径放置：
-
-- `docs/source-snapshot/CLAUDE.md` — 源项目的顶层指令快照（2026-09-30 起根目录 `CLAUDE.md` 是本仓库自己的）
-- `docs/governance/` — git-workflow、skill-design、backlog、e2e 验收标准与质检门、未验前提协议等
-- `docs/roadmap/` — S2 任务清单、roadmap v3.4
-- `docs/observations/` / `docs/retro/S2/` / `docs/plans/` — 坑表与 retro 引用的观察记录、节点复盘、拆解文档
-- `docs/infrastructure/` / `docs/pipeline/` / `docs/archive/` — 被引用的基础设施与流水线文档
-- `src/` / `scripts/` / `tests/` — 被引用的代码文件（仅供阅读定位，**不构成可运行工程**）
+| [scripts/](scripts/) | `router` 路由器（事实推档位 + 路由卡 + 声明对账）· `lint_links` 断链 · `lint_config_slots` 骨架槽位与泄漏 · `lint_pr_body` 交付单格式 · `metrics_report` 划算度报告；各带 `--self-test`，正式测试在 [tests/](tests/) |
+| [pitfalls.md](pitfalls.md) | 本仓已知坑表（条目带路径，路由器按它命中） |
+| [backlog.md](backlog.md) | 待办与里程碑；每条带触发条件 |
+| [observations.md](observations.md) | retro 的 observe 登记，≥ 3 次同类升级 |
+| [metrics.md](metrics.md) | 规则命中台账 + PR 台账；零命中 90 天进退役候选 |
+| [.github/workflows/checks.yml](.github/workflows/checks.yml) | push / PR 跑自测 + pytest + 检查，秒级 |
 
 ## 来源与演进
 
-- 源仓库：`JunoChenZt/subagent-for-investment`（private），初始快照 main `ad07047a`，2026-09-29
-- **自 2026-09-29 起本仓库独立演进，不再与源仓库同步**。第一次修改 = 外部评审六条建议中的第 3、5 条（见 [workflow.md §7.5](docs/governance/workflow.md#75-文档迭代历史非完整)）；其余 51 个引用文件仍是快照原样
-- 同日第二笔 = 建议 2 按任务大小分档（[01 §2.2.5](docs/governance/workflow/01-task-entry.md#225-任务分档s--m--l--2026-09-29-立)）
-- 同日第三笔 = 建议 1 分离通用规则与项目规则（[core/](core/README.md) + [project-config.md](project-config.md)；实例层原文不动）
-- 同日第四笔 = 建议 4 自动检查（[checks.md](checks.md) 登记表 + [scripts/](scripts/) 四道检查 + [CI](.github/workflows/checks.yml)）与建议 6 划算度台账（[metrics.md](metrics.md) + `scripts/metrics_report.py`）
-- 同日第五笔 = 分档 v2 + 路由器（七点裁定全按建议：事实推档位、路径两表、阈值按桶、坑表路径字段、路由卡、入口必跑、M 单 goal 免 XML 字段；[core/01](core/01-entry-and-routing.md)、`scripts/router.py`）
-
-## 已知限制
-
-- **一级链接全通**：12 份工作流文档内的每一条相对链接都已核过，在本仓库内可解析。
-- **二级链接不保证**：被引用文件（如 S2.md、backlog.md、retro 记录）自己再往外指的链接，目标未打包，可能点不开。
-- 根目录的 `CLAUDE.md` 是源仓库的项目指令快照。在本仓库里用 Claude Code 时它会被当作项目指令读取，其中的分支约定 / 红线针对源仓库，不一定适用于此处。
+- 从一个投资研究项目的工作流基准抽出（2026-09-29），当天按外部评审六条建议落地：分离骨架与配置、按任务大小分档、简短入口、可检测规则自动化、允许报告未验证、测量流程划算度；晚间分档升级为 v2 事实推档位 + 路由器。
+- 2026-09-30 起本仓库用自己的规则（根 CLAUDE.md、一律走 PR），并删除全部源项目内部材料，只剩骨架 + 配置 + 本仓项目资产。变更记录在 [core/README §6](core/README.md)。
+- 仓库 private。

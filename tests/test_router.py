@@ -18,6 +18,30 @@ def test_parse_numstat_handles_binary_and_junk():
     assert [(r["path"], r["add"], r["del"]) for r in rows] == [("src/a.py", 5, 3), ("img.png", 0, 0)]
 
 
+def test_parse_numstat_decodes_git_quoted_octal_paths():
+    # 离线 numstat 文件里可能是 git 默认的引号 + 八进制转义；要还原成真路径，不只是去引号
+    rows = router.parse_numstat('1\t0\t"docs/plans/\\344\\270\\255.md"\n')
+    assert rows[0]["path"] == "docs/plans/中.md"
+    assert router.top_dir(rows[0]["path"], []) == "docs"
+
+
+@pytest.mark.parametrize("raw, new_path", [
+    ("src/app/old.py => src/app/new.py", "src/app/new.py"),
+    ("src/app/{old.py => new.py}", "src/app/new.py"),
+    ("{docs => core}/examples/x.md", "core/examples/x.md"),
+    ("src/{a => b}/x.py", "src/b/x.py"),
+])
+def test_parse_numstat_takes_rename_target(raw, new_path):
+    rows = router.parse_numstat(f"1\t1\t{raw}\n")
+    assert rows[0]["path"] == new_path and rows[0]["status"] == "R"
+
+
+def test_rename_counts_as_rename_not_missing_test(root_with_test):
+    rows = router.parse_numstat("0\t0\tsrc/app/{a.py => b.py}\n")
+    r = R(rows, root=root_with_test)
+    assert any("重命名 1" in x for x in r["reasons"]), r["reasons"]
+
+
 @pytest.mark.parametrize("path, bucket", [
     ("tests/test_a.py", "tests"), ("src/app/test_b.py", "tests"), ("docs/x.md", "docs"), ("README.md", "docs"),
     (".github/workflows/ci.yml", "infra"), ("pyproject.toml", "infra"), ("config/app.yml", "config"),
@@ -58,9 +82,16 @@ def test_load_pitfalls_reads_only_entries_with_path_field(tmp_path):
         encoding="utf-8")
     entries = router.load_pitfalls(t, "路径:")
     assert [(e["severity"], e["section"], e["paths"], e["action"]) for e in entries] == [
-        ("🔴", "3.2", ["router\\.py$", "src/rout"], "grill fallback"),
-        ("🟢", "3.3", ["docs/"], ""),
+        ("🔴", "§3.2 通用", ["router\\.py$", "src/rout"], "grill fallback"),
+        ("🟢", "§3.3 别的段", ["docs/"], ""),
     ]
+
+
+def test_load_pitfalls_accepts_h2_sections(tmp_path):
+    t = tmp_path / "pit.md"
+    t.write_text("## 1. 脚本与 CI\n- 🔴 [active] 管道吞退出码\n  路径: ^scripts/\n", encoding="utf-8")
+    e = router.load_pitfalls(t, "路径:")
+    assert len(e) == 1 and e[0]["section"] == "§1. 脚本与 CI"
 
 
 def test_load_pitfalls_missing_table_is_empty(tmp_path):
@@ -97,6 +128,12 @@ def test_small_change_with_paired_test_is_S(root_with_test):
 def test_missing_paired_test_is_M(root_with_test):
     r = R(rows_of(("src/app/b.py", 5, 0)), root=root_with_test)
     assert r["tier"] == "M" and "无配对测试" in r["reasons"][0]
+
+
+def test_deleted_src_file_does_not_need_a_test(root_with_test):
+    r = R(rows_of(("src/app/a.py", 1, 0), ("tests/test_a.py", 1, 0), ("src/app/gone.py", 0, 40, "D")), root=root_with_test)
+    assert not any("无配对测试" in x for x in r["reasons"]), r["reasons"]
+    assert any("删除 1" in x for x in r["reasons"])
 
 
 @pytest.mark.parametrize("rows, h, tier, needle", [
@@ -160,6 +197,8 @@ def test_declared_and_h_from_body():
     assert router.declared_from_body("档位：L") == "L"
     assert router.declared_from_body("无") is None
     assert router.h_from_body("H1 新增能力: 是  H2 外部副作用: 否  H3 不可逆: no") == {"h1": True, "h2": False, "h3": False}
+    # 第一次出现为准：后文复盘里的「H2 …: 是」不覆盖声明
+    assert router.h_from_body("H2 外部副作用: 否\n复盘：H2 外部副作用: 是 的情况本 PR 没有")["h2"] is False
 
 
 def test_card_renders_all_lines(root_with_test):
@@ -177,10 +216,31 @@ def patched_main(monkeypatch, root_with_test):
     return root_with_test
 
 
-def test_main_planned_mode_missing_h_defaults_to_no_with_warning(patched_main, capsys):
+def test_main_planned_mode_missing_h_defaults_to_yes_with_warning(patched_main, capsys):
     assert router.main(["--planned", "src/app/a.py", "tests/test_a.py"]) == 0
     out = capsys.readouterr().out
-    assert "缺人声明" in out and "档位: S" in out and "按「否」计" in out
+    assert "缺人声明" in out and "档位: L" in out and "按「是」计" in out   # 拿不准往高一档：H2/H3 = 是 → L
+
+
+def test_main_rejects_unknown_h_value(patched_main):
+    with pytest.raises(SystemExit) as e:
+        router.main(["--planned", "src/app/a.py", "--h1", "ye", "--h2", "no", "--h3", "no"])
+    assert "只认 yes|no" in str(e.value)
+
+
+def test_main_flag_without_value_is_a_clear_error(patched_main):
+    with pytest.raises(SystemExit) as e:
+        router.main(["--planned", "src/app/a.py", "--declared"])
+    assert "缺值" in str(e.value)
+
+
+def test_main_pr_body_without_tier_line_fails(patched_main, tmp_path, capsys):
+    stat = tmp_path / "stat.txt"
+    stat.write_text("1\t0\tsrc/app/a.py\n1\t0\ttests/test_a.py\n", encoding="utf-8")
+    body = tmp_path / "body.md"
+    body.write_text("修 typo\n- H1 新增能力: 否  H2 外部副作用: 否  H3 不可逆: 否\n", encoding="utf-8")
+    assert router.main(["--numstat-file", str(stat), "--pr-body-file", str(body)]) == 1
+    assert "没有「档位" in capsys.readouterr().out
 
 
 def test_main_declared_below_computed_fails(patched_main, tmp_path, capsys):
@@ -224,15 +284,17 @@ def test_main_base_mode_uses_real_git_diff(tmp_path, monkeypatch):
     run("branch", "base")
     (repo / "src" / "app" / "a.py").write_text("import requests\nx = 2  # 中文注释：GBK 控制台下 subprocess 按 locale 解码会炸\n", encoding="utf-8")
     (repo / "RULES.md").write_text("红线：禁止 git push --force 与 DROP TABLE\n", encoding="utf-8")
+    (repo / "docs").mkdir()
+    (repo / "docs" / "说明.md").write_text("文档里也写 DROP TABLE\n", encoding="utf-8")   # 非 ASCII 文件名
     run("add", "-A")
     run("commit", "-q", "-am", "change")
     monkeypatch.setattr(router, "ROOT", repo)
     monkeypatch.setattr(router, "load", lambda: dict(CFG, pitfalls={}))
     rows = router.git_rows("base")
-    assert [(r["path"], r["status"]) for r in rows] == [("RULES.md", "A"), ("src/app/a.py", "M")]
+    assert [(r["path"], r["status"]) for r in rows] == [("RULES.md", "A"), ("docs/说明.md", "A"), ("src/app/a.py", "M")]   # 中文路径原样、不带引号
     added = router.git_added_lines("base")
     assert "import requests" in added and "中文注释" in added      # 2026-09-30 真跑撞出：text=True 默认 locale 解码
-    assert "DROP TABLE" not in added                                # .md 里的规则文案不进反查
+    assert "DROP TABLE" not in added                                # .md 里的规则文案不进反查（含中文名的 .md）
     r = router.route(rows, NO_H, CFG, [], repo, added)
     assert r["tier"] == "M"                                          # RULES.md 与 src 跨顶层目录
     assert [w[:2] for w in r["warnings"]] == ["H2"]                  # 只有网络 import 的警告，没有 .md 文案触发的 H3

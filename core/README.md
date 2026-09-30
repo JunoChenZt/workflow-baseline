@@ -6,11 +6,11 @@
 >
 > | 层 | 位置 | 放什么 | 谁改 |
 > |---|---|---|---|
-> | 骨架 | `core/`（本目录） | 规则本体，通用 | 只在规则本身要变时改，走 §5 维护协议 |
-> | 配置 | [project-config.md](../project-config.md) | 所有 `{{key}}` 的取值 | 每个项目接入时改这一份 |
-> | 实例 | [docs/governance/workflow/](../docs/governance/workflow/README.md) | 骨架在原项目上的展开：规则 + 参数 + 历史证据 + 坑表 | 原项目维护；别的项目不需要 |
+> | 骨架 | `core/`（本目录） | 规则本体，通用；`examples/` 下一个完整案例 | 只在规则本身要变时改，走 §5 维护协议 |
+> | 配置 | [project-config.md](../project-config.md) | 所有 `{{key}}` 的取值；本仓库填的是它自己的 | 每个项目接入时改这一份 |
+> | 项目资产 | 仓库根：`{{pitfall_table}}` / `{{backlog_file}}` / `{{observation_ledger}}` / `{{metrics.ledger}}` / `{{checks.registry}}` | 坑表、待办、观察点、台账、检查登记 —— 每个项目自己的 | 项目自己 |
 >
-> **冲突时**：规则以骨架为准；参数以配置为准；实例层只作案例与证据。
+> **冲突时**：规则以骨架为准；参数以配置为准。
 >
 > **接入别的项目**：复制 `core/` + 复制 `project-config.md` 改「本项目值」列 + 把 [01](01-entry-and-routing.md) 顶部的接入片段贴进项目指令文件。三步，不用改骨架。
 
@@ -36,7 +36,7 @@
 
 | 你现在在做什么 | 读 |
 |---|---|
-| 第一次接入 | 本文件 + [01](01-entry-and-routing.md) 顶部接入片段 |
+| 第一次接入 | 本文件 + [01](01-entry-and-routing.md) 顶部接入片段 + [完整案例](examples/walkthrough-cli-json-flag.md) |
 | 刚接到任务 | [01](01-entry-and-routing.md) |
 | 大任务要拆 | [02](02-decompose.md) |
 | 在做一个 goal | [03](03-execute-and-verify.md) |
@@ -51,7 +51,7 @@
 
 - 不定项目红线、北极星、验收阈值、目录结构。那些是配置。
 - 不含任何一条具体的「已知坑」。坑表是项目资产，骨架只定它的格式与维护协议（[08](08-pitfall-registry.md)）。
-- 不含历史证据与出处。「为什么立这条规则」的实证在实例层各文档的「治的是什么」段落里；骨架只保留规则和一句话动机。
+- 不含历史证据与出处。骨架只保留规则和一句话动机（各节开头的「治的是什么」）；实证在原项目的记录里，本仓不带。
 
 ## 4. 记法约定
 
@@ -72,6 +72,7 @@
 
 ## 6. CHANGELOG
 
-- 2026-09-29：初版。从 `subagent-for-investment` 的 11 份 workflow 子文档抽出通用骨架（评审建议 1「分离通用规则与项目规则」）；同日已先落地建议 5（DoD 三态 + 交付单）、建议 3（quickstart）、建议 2（分档）。分档标准细化与路由机制待商量（[project-config §2](../project-config.md) `tier.router`）。
+- 2026-09-29：初版。从源项目（一个投资研究工作流）的 11 份 workflow 子文档抽出通用骨架（评审建议 1「分离通用规则与项目规则」）；同日已先落地建议 5（DoD 三态 + 交付单）、建议 3（quickstart）、建议 2（分档）。分档标准细化与路由机制待商量（[project-config §2](../project-config.md) `tier.router`）。
+- 2026-09-30：**去内部材料**（用户裁「这个要做通用的」）：源项目的 45 个快照文件与 11 份原工作流文档（实例层）全部删除；完整案例改写为 v2 路由器版本并移入 `core/examples/`；project-config 换成本仓库自己的取值；本仓立自己的坑表 / 待办 / 观察表。骨架自此只剩两层：core/ + project-config。
 - 2026-09-29（同日，晚）：**分档 v2 + 路由器**，用户七点裁定全按建议：① 取消「大任务七条 / 风险五条」独立判定，档位由事实推出；② 敏感路径拆 L 档 / M 档两表；③ 阈值按桶分开（src 严、tests / docs 宽、config / infra 不给 S）；④ 坑表条目加「路径:」字段，路由器按路径命中；⑤ 路由卡 markdown 为主 + `--json`；⑥ S / M 入口必跑路由器（预计清单）；⑦ M 档单 goal 可用路由卡代替 scope / verification。人声明压成 H1–H3 三个是非题，DoD 时 diff 反查兜底。`scripts/router.py` 取代 `tier_check.py`。
 - 2026-09-29（同日）：建议 4 + 6 落地。四道自动检查 + 一个报告脚本（`scripts/`，各带 `--self-test`）、检查登记表 `{{checks.registry}}`、CI `{{checks.ci}}`（WARN 试用为主）、台账 `{{metrics.ledger}}` + `{{metrics.report}}`。`tier_check` 是路由器第一版（算 S 判据 1–3；判据 4–5 与是否 L 提示人核）。§5 补两条维护原则。

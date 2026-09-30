@@ -47,6 +47,32 @@ MATRIX = {
 
 
 # ---------- 输入 ----------
+GIT = ["git", "-c", "core.quotepath=false"]   # 非 ASCII 路径原样输出，不加引号不转义
+
+
+def _unquote(path: str) -> str:
+    """离线 numstat 文件里可能仍是 git 默认的 C 风格引号 + 八进制转义（"docs/\\344\\270\\255.md"），还原成真路径。"""
+    path = path.strip()
+    if len(path) >= 2 and path[0] == path[-1] == '"':
+        inner = path[1:-1]
+        try:
+            path = inner.encode("latin-1", "backslashreplace").decode("unicode_escape").encode("latin-1").decode("utf-8")
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            path = inner
+    return path
+
+
+def _rename_target(path: str) -> tuple[str, bool]:
+    """numstat 对重命名输出 `old => new` 或 `pre/{old => new}/suf`；取新路径。返回 (路径, 是否重命名)。"""
+    if " => " not in path:
+        return path, False
+    if "{" in path and "}" in path:
+        i, j = path.index("{"), path.index("}")
+        new_inner = path[i + 1:j].split(" => ", 1)[1]
+        return path[:i] + new_inner + path[j + 1:], True
+    return path.split(" => ", 1)[1], True
+
+
 def parse_numstat(text: str) -> list[dict]:
     rows = []
     for line in text.splitlines():
@@ -54,32 +80,35 @@ def parse_numstat(text: str) -> list[dict]:
         if len(parts) < 3:
             continue
         add, dele = (0 if parts[0] == "-" else int(parts[0])), (0 if parts[1] == "-" else int(parts[1]))
-        path = parts[-1].strip()
-        rows.append({"path": path, "add": add, "del": dele, "status": "M"})
+        path, renamed = _rename_target(_unquote(parts[-1]))
+        rows.append({"path": path, "add": add, "del": dele, "status": "R" if renamed else "M"})
     return rows
+
+
+def _git(*args: str) -> str:
+    return subprocess.run(GIT + list(args), cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
 
 
 def git_rows(base: str) -> list[dict]:
     rng = f"{base}...HEAD"
-    rows = parse_numstat(subprocess.run(["git", "diff", "--numstat", rng], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout)
-    status = subprocess.run(["git", "diff", "--name-status", rng], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
+    rows = parse_numstat(_git("diff", "--numstat", rng))
     st = {}
-    for line in status.splitlines():
+    for line in _git("diff", "--name-status", rng).splitlines():
         parts = line.split("\t")
         if len(parts) >= 2:
-            st[parts[-1].strip()] = parts[0][0]
+            st[_unquote(parts[-1])] = parts[0][0]   # 重命名行是 R<score>\told\tnew，键取新路径
     for r in rows:
-        r["status"] = st.get(r["path"], "M")
+        r["status"] = st.get(r["path"], r["status"])
     return rows
 
 
 def git_added_lines(base: str, skip_suffixes: tuple[str, ...] = (".md", ".txt", ".rst")) -> str:
     """diff 里的新增行，供 H 反查。跳过文档类文件：文档里写「DROP TABLE」「git push --force」是在讲规则，不是在做操作。"""
-    out = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
+    out = _git("diff", "-U0", f"{base}...HEAD")
     kept, skipping = [], False
     for l in out.splitlines():
         if l.startswith("+++ "):
-            skipping = l.strip().endswith(skip_suffixes)
+            skipping = _unquote(l[4:]).endswith(skip_suffixes)
             continue
         if l.startswith("+") and not skipping:
             kept.append(l[1:])
@@ -114,8 +143,8 @@ def load_pitfalls(table: Path, field: str) -> list[dict]:
         return []
     entries, cur, section = [], None, ""
     for line in table.read_text(encoding="utf-8", errors="replace").splitlines():
-        if line.startswith("### "):
-            section = line[4:].split(" ")[0]
+        if line.startswith("### ") or line.startswith("## "):
+            section = "§" + line.lstrip("#").strip()
         m = re.match(r"^- (🔴|🟡|🟢)\s*\[(\w+)\]\s*(.*)", line)
         if m:
             cur = {"severity": m.group(1), "status": m.group(2), "text": m.group(3)[:80], "section": section, "paths": [], "action": ""}
@@ -160,7 +189,10 @@ def facts(rows: list[dict], cfg: dict, pitfalls: list[dict], root: Path | None =
                 pit_hits.append(e)
                 break
     missing_tests = []
+    deleted_set = set(deleted)
     for p in buckets.get("src", {}).get("paths", []):
+        if p in deleted_set:
+            continue   # 删掉的文件不需要测试
         tf = test_for(p, t.get("test_map", []))
         if tf is None or (root is not None and not (root / tf).exists()):
             missing_tests.append((p, tf))
@@ -255,9 +287,12 @@ def declared_from_body(text: str) -> str | None:
 
 
 def h_from_body(text: str) -> dict:
+    """PR 描述里的 H 行。**第一次出现为准**：后文复盘 / 引用里再提到「H2 …: 是」不算声明。"""
     h = {}
     for m in H_LINE.finditer(text):
-        h[f"h{m.group(1)}"] = m.group(2).lower() in ("是", "yes")
+        k = f"h{m.group(1)}"
+        if k not in h:
+            h[k] = m.group(2).lower() in ("是", "yes")
     return h
 
 
@@ -329,13 +364,29 @@ def main(argv: list[str]) -> int:
         self_test()
         return 0
     cfg = load()
-    arg = lambda k: argv[argv.index(k) + 1] if k in argv else None
+    info = (lambda m: print(m, file=sys.stderr)) if "--json" in argv else print   # --json 时 stdout 只放 JSON
+
+    def arg(k: str) -> str | None:
+        if k not in argv:
+            return None
+        i = argv.index(k) + 1
+        if i >= len(argv) or argv[i].startswith("--"):
+            raise SystemExit(f"router: {k} 缺值")
+        return argv[i]
+
     body = Path(arg("--pr-body-file")).read_text(encoding="utf-8") if arg("--pr-body-file") else ""
     h = h_from_body(body)
+    YES, NO = ("yes", "是", "y", "true"), ("no", "否", "n", "false")
     for k in ("h1", "h2", "h3"):
         v = arg(f"--{k}")
-        if v:
-            h[k] = v.lower() in ("yes", "是", "y", "true")
+        if v is None:
+            continue
+        if v.lower() in YES:
+            h[k] = True
+        elif v.lower() in NO:
+            h[k] = False
+        else:
+            raise SystemExit(f"router: --{k} 只认 yes|no，收到「{v}」（答不准就写 yes，core/01 §5）")
     added = None
     if "--planned" in argv:
         i = argv.index("--planned") + 1
@@ -354,14 +405,14 @@ def main(argv: list[str]) -> int:
         mode = f"DoD / CI（diff {base}...HEAD）"
     missing_h = [k for k in ("h1", "h2", "h3") if k not in h]
     if missing_h:
-        print(f"router: 缺人声明 {missing_h}（--h1/--h2/--h3 yes|no，或 PR 描述里「H1 新增能力: 是/否」行）→ 按「否」算，但卡上标注")
+        info(f"router: 缺人声明 {missing_h}（--h1/--h2/--h3 yes|no，或 PR 描述里「H1 新增能力: 是/否」行）→ 按「是」算（core/01 §5 拿不准往高一档），卡上标注")
         for k in missing_h:
-            h[k] = False
+            h[k] = True
     pit_cfg = cfg.get("pitfalls", {})
     pitfalls = load_pitfalls(ROOT / pit_cfg.get("table", ""), pit_cfg.get("path_field", "路径:")) if pit_cfg.get("table") else []
     r = route(rows, h, cfg, pitfalls, ROOT, added)
     if missing_h:
-        r["warnings"].append(f"人声明 {missing_h} 缺失，按「否」计")
+        r["warnings"].append(f"人声明 {missing_h} 缺失，按「是」计 —— 补上声明再跑才能降回来")
     if "--json" in argv:
         print(json.dumps(r, ensure_ascii=False, indent=2))
     else:
@@ -369,11 +420,15 @@ def main(argv: list[str]) -> int:
         print(card(r))
     declared = (arg("--declared") or "").upper() or declared_from_body(body)
     if not declared:
+        if body:
+            info("TIER PR 描述里没有「档位: S/M/L」行 = 没跑路由器就交付（core/01 §5）")
+            return 1
+        info("router: 未给声明档位（--declared 或 --pr-body-file），只算不判")
         return 0
     if RANK.get(declared, -1) < RANK[r["tier"]]:
-        print(f"TIER 声明 {declared} 低于路由器算出的 {r['tier']} → 必须升档（core/01 §5）")
+        info(f"TIER 声明 {declared} 低于路由器算出的 {r['tier']} → 必须升档（core/01 §5）")
         return 1
-    print(f"router: 声明 {declared} ≥ 算出 {r['tier']} ✓")
+    info(f"router: 声明 {declared} ≥ 算出 {r['tier']} ✓")
     return 0
 
 

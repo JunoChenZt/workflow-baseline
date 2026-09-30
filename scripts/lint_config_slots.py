@@ -1,4 +1,5 @@
-"""骨架 / 配置对账：core/ 里用到的每个 {{key}} 必须在 project-config.md 有定义；core/ 里不得出现项目名词。
+"""骨架 / 配置对账：core/ 里用到的每个 {{key}} 必须在 project-config.md 有定义；core/ 里不得出现项目名词；
+项目指令文件里的「过程规则」编号条目必须与 core/01 §0 接入片段逐字一致（两份真值不许分叉）。
 
 用法：
   python scripts/lint_config_slots.py            # 任一违反 → exit 1
@@ -19,6 +20,22 @@ from _config import ROOT, load  # noqa: E402
 SLOT = re.compile(r"\{\{([\w.]+)\}\}")
 DEFINED = re.compile(r"^\| `([\w.]+)` \|", re.M)
 IGNORE_SLOTS = {"key"}  # README 里解释记法用的字面量
+RULE_ITEM = re.compile(r"^\d+\. .*$", re.M)
+
+
+def snippet_drift(core01: Path, instructions: Path) -> list[str]:
+    """项目指令里的编号规则条目 vs core/01 §0 片段：条数可少不可多，出现的每条必须逐字相同。"""
+    if not core01.exists() or not instructions.exists():
+        return []
+    src = RULE_ITEM.findall(core01.read_text(encoding="utf-8").split("## 1.")[0])
+    dst = RULE_ITEM.findall(instructions.read_text(encoding="utf-8"))
+    out = []
+    if len(dst) > len(src):
+        out.append(f"{instructions.name}: 规则条目 {len(dst)} 条 > core/01 §0 的 {len(src)} 条")
+    for i, (a, b) in enumerate(zip(src, dst), 1):
+        if a != b:
+            out.append(f"{instructions.name}: 第 {i} 条与 core/01 §0 不一致 —— 指令:「{b[:40]}…」 骨架:「{a[:40]}…」")
+    return out
 
 
 def check(core_dir: Path, config_md: Path, leak_terms: list[str]) -> list[str]:
@@ -52,7 +69,16 @@ def self_test() -> None:
         assert sum("泄漏" in x for x in p) == 1, p
         (core / "x.md").write_text("只用 {{a.b}}。\n", encoding="utf-8")
         assert check(core, cfg, ["SecretProj"]) == []
-    print("self-test: 未定义槽位会响、泄漏会响（CHANGELOG 除外）、干净不响 ✓")
+        c01 = core / "01.md"
+        c01.write_text("## 0. 片段\n```\n1. 甲\n2. 乙\n```\n## 1. 正文\n3. 不算\n", encoding="utf-8")
+        ins = r / "CLAUDE.md"
+        ins.write_text("1. 甲\n2. 乙\n", encoding="utf-8")
+        assert snippet_drift(c01, ins) == []
+        ins.write_text("1. 甲\n2. 乙改了\n", encoding="utf-8")
+        assert any("第 2 条" in x for x in snippet_drift(c01, ins))
+        ins.write_text("1. 甲\n2. 乙\n3. 多出来\n", encoding="utf-8")
+        assert any("3 条 >" in x for x in snippet_drift(c01, ins))
+    print("self-test: 未定义槽位会响、泄漏会响（CHANGELOG 除外）、片段分叉会响、干净不响 ✓")
 
 
 def main(argv: list[str]) -> int:
@@ -61,6 +87,7 @@ def main(argv: list[str]) -> int:
         return 0
     cfg = load()
     problems = check(ROOT / "core", ROOT / "project-config.md", cfg.get("core_leak_terms", []))
+    problems += snippet_drift(ROOT / "core" / "01-entry-and-routing.md", ROOT / cfg.get("instructions_file", "CLAUDE.md"))
     for p in problems:
         print("SLOT", p)
     print(f"config-slots: problems={len(problems)}")

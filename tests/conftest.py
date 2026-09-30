@@ -6,9 +6,6 @@ from pathlib import Path
 
 import pytest
 
-# 这两份是源项目的快照（被坑表链接引用），不属于本仓测试资产，不收集
-collect_ignore = ["test_degradation_notes.py", "test_web_search.py"]
-
 REPO = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO / "scripts"
 if str(SCRIPTS) not in sys.path:
