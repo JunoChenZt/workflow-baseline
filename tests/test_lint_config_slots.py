@@ -38,6 +38,23 @@ def test_main_exit_codes(tmp_path, monkeypatch):
     assert lcs.main([]) == 1
 
 
+def test_snippet_drift_reports_changed_and_extra_items(tmp_path):
+    c01 = tmp_path / "01.md"
+    c01.write_text("## 0. 片段\n1. 甲\n2. 乙\n## 1. 正文\n9. 正文里的编号不算\n", encoding="utf-8")
+    ins = tmp_path / "CLAUDE.md"
+    ins.write_text("1. 甲\n2. 乙\n", encoding="utf-8")
+    assert lcs.snippet_drift(c01, ins) == []
+    ins.write_text("1. 甲\n2. 乙（改）\n", encoding="utf-8")
+    assert [p for p in lcs.snippet_drift(c01, ins) if "第 2 条" in p]
+    ins.write_text("1. 甲\n2. 乙\n3. 多\n", encoding="utf-8")
+    assert [p for p in lcs.snippet_drift(c01, ins) if "3 条 >" in p]
+    assert lcs.snippet_drift(c01, tmp_path / "nope.md") == []
+
+
+def test_real_instructions_match_core01_snippet(repo_root):
+    assert lcs.snippet_drift(repo_root / "core/01-entry-and-routing.md", repo_root / "CLAUDE.md") == []
+
+
 def test_self_test_passes():
     lcs.self_test()
 
