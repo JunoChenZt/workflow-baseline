@@ -2,15 +2,12 @@
 
 本仓库是一套「让 AI 自主推进任务时不越线、不盲跑、交付可核」的过程规则骨架。**它用自己的规则**：下面的过程规则段逐字来自 [core/01 §0](core/01-entry-and-routing.md)，改那边要同步这边（`scripts/lint_config_slots.py` 不核这一点，靠 PR review）。
 
-> 实例层文档（[docs/governance/workflow/](docs/governance/workflow/README.md)）里指向「CLAUDE.md 强制红线 / 需要确认」的链接，指的是**源项目**那份指令，快照在 [docs/source-snapshot/CLAUDE.md](docs/source-snapshot/CLAUDE.md)。本文件是本仓库自己的。
-
 ## 本仓库红线（任何时刻触到立即停，不等判定）
 
 - 不把仓库设为 public（快照层含源项目内部材料）
-- 不改 `docs/source-snapshot/`、`docs/governance/workflow/`、`docs/**` 快照层内容，除非用户点名（它们是冻结快照，不是活文档）
 - 不直推 `main`；所有改动走工作分支 + PR，让 PR 事件上的检查跑
 - 改 `core/` = 改所有接入项目的规则，走 [core/README §5](core/README.md) 维护协议；重大调整（改步骤 / 三态 / 三栏 / 档位规则 / 分流表 / 坑表标记）先停下问
-- 不删快照层文件、不批量清理，即便它们链接断了
+- 不把任何项目的内部材料（记录、证据、源码片段）放进本仓；骨架保持零项目名词（`scripts/lint_config_slots.py` 守着）
 
 ## 过程规则（真值源 core/，按阶段只读对应文档，不通读；参数在 project-config.md）
 
@@ -36,16 +33,16 @@ python scripts/lint_pr_body.py --file <PR 描述文件>
 
 Windows 控制台先 `set PYTHONIOENCODING=utf-8`。每道检查的承重与误报预算在 [checks.md](checks.md)。
 
-## 台账（交付时顺手记）
+## 项目资产（交付时顺手记）
 
-- [metrics.md](metrics.md) 表 2 每次 PR 加一行（档位 / 返工 / ⚪ / token）；表 1 某条规则真拦到东西时更新「上次命中」。
-- 里程碑交接跑 `python scripts/metrics_report.py`。
+- [pitfalls.md](pitfalls.md) 坑表：踩到坑先查；新坑回填并写「路径:」。
+- [backlog.md](backlog.md) 待办与里程碑：坐实 finding 的「记账」去处；每条带触发条件。
+- [observations.md](observations.md)：retro 的 observe 落这里，≥ 3 次同类升级。
+- [metrics.md](metrics.md) 表 2 每次 PR 加一行（档位 / 返工 / ⚪ / token）；表 1 某条规则真拦到东西时更新「上次命中」。里程碑交接跑 `python scripts/metrics_report.py`。
 
 ## 已知未收口
 
-- [project-config.md](project-config.md) 的「本项目值」列**仍是源项目的取值**（红线、L / M 路径、冒烟定义），本仓库自己的取值待换 —— 在此之前路由器按源项目的路径表判档，`.github/` 一律 L。
-- 路由器 DoD 运行点只看已提交的 diff，工作树未提交改动看不见（[checks.md](checks.md) 已登记）。
-- 快照层 45 个文件的去留待用户定。
+见 [backlog.md](backlog.md) 活跃待办（路由器 DoD 运行点看不见未提交改动 = B1；路径子串误伤 = B2）。
 
 ## 沟通
 

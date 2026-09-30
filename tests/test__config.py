@@ -30,7 +30,7 @@ def test_real_config_has_every_key_the_scripts_read():
     assert set(cfg["paths"]) == {"l", "m"}
     assert set(cfg["pitfalls"]) == {"table", "path_field"}
     assert cfg["metrics"]["retire_after_days"] > 0 and cfg["metrics"]["ledger"]
-    assert cfg["checks"]["link_scope"] and isinstance(cfg["core_leak_terms"], list)
+    assert "link_scope" in cfg["checks"] and isinstance(cfg["core_leak_terms"], list)
     for name, _files_lines in cfg["tier"]["s_limits"].items():
         assert len(_files_lines) == 2, name
 

@@ -61,7 +61,7 @@ def test_self_test_passes():
 
 
 def test_example_walkthrough_delivery_form_passes(repo_root):
-    text = (repo_root / "docs/governance/workflow/examples/walkthrough-cli-json-flag.md").read_text(encoding="utf-8")
+    text = (repo_root / "core/examples/walkthrough-cli-json-flag.md").read_text(encoding="utf-8")
     start = text.index("## 交付单 (goal TMP-json.1)")
     end = text.index("```", start)
     body = "- 档位: M\n- 计数: ✅ 3 / ❌ 0 / ⚪ 1\n" + text[start:end]
