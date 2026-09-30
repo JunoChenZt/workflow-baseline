@@ -229,7 +229,7 @@ def test_main_base_mode_uses_real_git_diff(tmp_path, monkeypatch):
     monkeypatch.setattr(router, "ROOT", repo)
     monkeypatch.setattr(router, "load", lambda: dict(CFG, pitfalls={}))
     rows = router.git_rows("base")
-    assert [(r["path"], r["status"]) for r in rows] == [("src/app/a.py", "M")]
+    assert [(r["path"], r["status"]) for r in rows] == [("RULES.md", "A"), ("src/app/a.py", "M")]
     added = router.git_added_lines("base")
     assert "import requests" in added and "中文注释" in added      # 2026-09-30 真跑撞出：text=True 默认 locale 解码
     assert "DROP TABLE" not in added                                # .md 里的规则文案不进反查
