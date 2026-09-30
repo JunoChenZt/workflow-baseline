@@ -55,6 +55,8 @@ def parse_numstat(text: str) -> list[dict]:
             continue
         add, dele = (0 if parts[0] == "-" else int(parts[0])), (0 if parts[1] == "-" else int(parts[1]))
         path = parts[-1].strip()
+        if len(path) >= 2 and path[0] == path[-1] == '"':   # git 对非 ASCII 路径加引号（core.quotepath）
+            path = path[1:-1]
         rows.append({"path": path, "add": add, "del": dele, "status": "M"})
     return rows
 
@@ -67,7 +69,10 @@ def git_rows(base: str) -> list[dict]:
     for line in status.splitlines():
         parts = line.split("\t")
         if len(parts) >= 2:
-            st[parts[-1].strip()] = parts[0][0]
+            p = parts[-1].strip()
+            if len(p) >= 2 and p[0] == p[-1] == '"':
+                p = p[1:-1]
+            st[p] = parts[0][0]
     for r in rows:
         r["status"] = st.get(r["path"], "M")
     return rows
@@ -114,8 +119,8 @@ def load_pitfalls(table: Path, field: str) -> list[dict]:
         return []
     entries, cur, section = [], None, ""
     for line in table.read_text(encoding="utf-8", errors="replace").splitlines():
-        if line.startswith("### "):
-            section = line[4:].split(" ")[0]
+        if line.startswith("### ") or line.startswith("## "):
+            section = "§" + line.lstrip("#").strip()
         m = re.match(r"^- (🔴|🟡|🟢)\s*\[(\w+)\]\s*(.*)", line)
         if m:
             cur = {"severity": m.group(1), "status": m.group(2), "text": m.group(3)[:80], "section": section, "paths": [], "action": ""}

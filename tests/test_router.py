@@ -18,6 +18,13 @@ def test_parse_numstat_handles_binary_and_junk():
     assert [(r["path"], r["add"], r["del"]) for r in rows] == [("src/a.py", 5, 3), ("img.png", 0, 0)]
 
 
+def test_parse_numstat_strips_git_quotes_on_non_ascii_paths():
+    # git 对含中文的路径输出 "docs/plans/\344\270..." 带引号；不去引号顶层目录会算成 '"docs'
+    rows = router.parse_numstat('1\t0\t"docs/plans/\\344\\270\\255.md"\n')
+    assert rows[0]["path"].startswith("docs/plans/") and not rows[0]["path"].startswith('"')
+    assert router.top_dir(rows[0]["path"], []) == "docs"
+
+
 @pytest.mark.parametrize("path, bucket", [
     ("tests/test_a.py", "tests"), ("src/app/test_b.py", "tests"), ("docs/x.md", "docs"), ("README.md", "docs"),
     (".github/workflows/ci.yml", "infra"), ("pyproject.toml", "infra"), ("config/app.yml", "config"),
@@ -58,9 +65,16 @@ def test_load_pitfalls_reads_only_entries_with_path_field(tmp_path):
         encoding="utf-8")
     entries = router.load_pitfalls(t, "路径:")
     assert [(e["severity"], e["section"], e["paths"], e["action"]) for e in entries] == [
-        ("🔴", "3.2", ["router\\.py$", "src/rout"], "grill fallback"),
-        ("🟢", "3.3", ["docs/"], ""),
+        ("🔴", "§3.2 通用", ["router\\.py$", "src/rout"], "grill fallback"),
+        ("🟢", "§3.3 别的段", ["docs/"], ""),
     ]
+
+
+def test_load_pitfalls_accepts_h2_sections(tmp_path):
+    t = tmp_path / "pit.md"
+    t.write_text("## 1. 脚本与 CI\n- 🔴 [active] 管道吞退出码\n  路径: ^scripts/\n", encoding="utf-8")
+    e = router.load_pitfalls(t, "路径:")
+    assert len(e) == 1 and e[0]["section"] == "§1. 脚本与 CI"
 
 
 def test_load_pitfalls_missing_table_is_empty(tmp_path):
